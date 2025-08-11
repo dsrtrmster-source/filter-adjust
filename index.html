@@ -1,79 +1,72 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sliding Puzzle Game</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; background: #222; color: white; }
-    #board { display: grid; grid-template-columns: repeat(3, 100px); gap: 5px; margin: 50px auto; }
-    .tile { width: 100px; height: 100px; background: #444; display: flex; align-items: center; justify-content: center; font-size: 2em; cursor: pointer; }
-    .empty { background: #111; cursor: default; }
-    button { margin-top: 20px; padding: 10px; font-size: 16px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filter Kategori Scroll</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #111; color: #fff; margin: 0; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; }
+  .category-buttons { text-align: center; margin-bottom: 20px; }
+  .category-buttons button {
+    margin: 5px; padding: 10px 15px;
+    background: #333; color: white; border: none; border-radius: 6px;
+    cursor: pointer; transition: background 0.3s;
+  }
+  .category-buttons button:hover { background: #555; }
+  .gallery-container { display: none; }
+  .gallery { display: flex; overflow-x: auto; gap: 15px; padding: 10px; scroll-behavior: smooth; }
+  .gallery::-webkit-scrollbar { height: 8px; }
+  .gallery::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+  .item { flex: 0 0 auto; width: 200px; height: 130px; background-size: cover; background-position: center; border-radius: 8px; position: relative; }
+  .item::after {
+    content: attr(data-name);
+    position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.6); padding: 3px 6px;
+    font-size: 14px; border-radius: 4px;
+  }
+</style>
 </head>
 <body>
-  <h1>Sliding Puzzle 3x3</h1>
-  <div id="board"></div>
-  <button onclick="shuffle()">Acak Puzzle</button>
 
-  <script>
-    let size = 3;
-    let board = [];
-    let emptyPos = { row: size-1, col: size-1 };
+<h1>Filter Mobil</h1>
 
-    function init() {
-      board = [];
-      let num = 1;
-      for (let r = 0; r < size; r++) {
-        board[r] = [];
-        for (let c = 0; c < size; c++) {
-          board[r][c] = num <= size*size-1 ? num : "";
-          num++;
-        }
-      }
-      emptyPos = { row: size-1, col: size-1 };
-      render();
-    }
+<div class="category-buttons">
+  <button onclick="showGallery('bmw')">BMW</button>
+  <button onclick="showGallery('toyota')">Toyota</button>
+  <button onclick="showGallery('honda')">Honda</button>
+</div>
 
-    function render() {
-      const container = document.getElementById("board");
-      container.innerHTML = "";
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          let tile = document.createElement("div");
-          tile.className = "tile" + (board[r][c] === "" ? " empty" : "");
-          tile.textContent = board[r][c];
-          tile.onclick = () => move(r, c);
-          container.appendChild(tile);
-        }
-      }
-    }
+<div id="bmw" class="gallery-container">
+  <div class="gallery">
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?bmw,car');" data-name="BMW Seri 3"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?bmw,m4');" data-name="BMW M4"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?bmw,m5');" data-name="BMW M5"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?bmw,sport');" data-name="BMW Sport"></div>
+  </div>
+</div>
 
-    function move(r, c) {
-      if ((Math.abs(emptyPos.row - r) === 1 && emptyPos.col === c) ||
-          (Math.abs(emptyPos.col - c) === 1 && emptyPos.row === r)) {
-        board[emptyPos.row][emptyPos.col] = board[r][c];
-        board[r][c] = "";
-        emptyPos = { row: r, col: c };
-        render();
-      }
-    }
+<div id="toyota" class="gallery-container">
+  <div class="gallery">
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?toyota,car');" data-name="Toyota Avanza"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?toyota,camry');" data-name="Toyota Camry"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?toyota,supra');" data-name="Toyota Supra"></div>
+  </div>
+</div>
 
-    function shuffle() {
-      for (let i = 0; i < 100; i++) {
-        let moves = [];
-        let { row, col } = emptyPos;
-        if (row > 0) moves.push({ r: row-1, c: col });
-        if (row < size-1) moves.push({ r: row+1, c: col });
-        if (col > 0) moves.push({ r: row, c: col-1 });
-        if (col < size-1) moves.push({ r: row, c: col+1 });
-        let moveTile = moves[Math.floor(Math.random() * moves.length)];
-        move(moveTile.r, moveTile.c);
-      }
-    }
+<div id="honda" class="gallery-container">
+  <div class="gallery">
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?honda,car');" data-name="Honda Civic"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?honda,accord');" data-name="Honda Accord"></div>
+    <div class="item" style="background-image:url('https://source.unsplash.com/400x200/?honda,brv');" data-name="Honda BR-V"></div>
+  </div>
+</div>
 
-    init();
-  </script>
+<script>
+function showGallery(category) {
+  document.querySelectorAll('.gallery-container').forEach(g => g.style.display = 'none');
+  document.getElementById(category).style.display = 'block';
+}
+</script>
+
 </body>
 </html>
