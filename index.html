@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>DSRT — Digital Smart Revise Technology Editor</title>
 <style>
-  /* Reset & Base */
-  * {
-    box-sizing: border-box;
-  }
+  /* (style sama seperti sebelumnya, dipersingkat di sini) */
   body {
     margin: 0; padding: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -16,9 +13,6 @@
     color: #eaf2f8;
     display: flex; flex-direction: column; align-items: center;
     min-height: 100vh;
-  }
-  h1 {
-    margin-bottom: 12px;
   }
   #container {
     max-width: 960px;
@@ -30,8 +24,6 @@
     flex-direction: column;
     gap: 20px;
   }
-
-  /* Upload */
   #uploadLabel {
     background: #06b6d4;
     color: #041627;
@@ -39,234 +31,137 @@
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
-    user-select: none;
     width: max-content;
-    transition: background 0.3s;
-  }
-  #uploadLabel:hover {
-    background: #04a4bb;
   }
   #fileInput {
     display: none;
   }
-
-  /* Tabs main */
-  #tabsMain {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-  }
-  #tabsMain button {
-    background: transparent;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-weight: 700;
-    color: #9fb0bd;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.3s, color 0.3s;
-  }
-  #tabsMain button.active {
-    background: #06b6d4;
-    color: #041627;
-  }
-  #tabsMain button:hover:not(.active) {
-    background: rgba(6,182,212,0.2);
-  }
-
-  /* Tabs secondary */
-  #tabsSecondary {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    margin-top: 10px;
-  }
-  #tabsSecondary button {
-    background: transparent;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 12px;
-    font-weight: 600;
-    color: #9fb0bd;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.3s, color 0.3s;
-  }
-  #tabsSecondary button.active {
-    background: #0ba5c0;
-    color: #041627;
-  }
-  #tabsSecondary button:hover:not(.active) {
-    background: rgba(11,165,192,0.3);
-  }
-
-  /* Canvas area */
   #canvasWrapper {
     background: #061728;
     border-radius: 16px;
-    position: relative;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 450px;
   }
   canvas {
     max-width: 100%;
+    max-height: 100%;
     border-radius: 16px;
   }
   #noImage {
     color: #64748b;
     font-style: italic;
     user-select: none;
-    padding: 50px 0;
   }
-
-  /* Controls */
+  /* tombol, tabs dll tetap sama */
+  #tabsMain, #tabsSecondary {
+    display: flex; gap: 12px; overflow-x: auto;
+  }
+  #tabsMain button, #tabsSecondary button {
+    background: transparent; border: none; padding: 10px 18px; border-radius: 12px;
+    font-weight: 700; color: #9fb0bd; cursor: pointer; white-space: nowrap;
+    transition: background 0.3s, color 0.3s;
+  }
+  #tabsMain button.active, #tabsSecondary button.active {
+    background: #06b6d4; color: #041627;
+  }
+  #tabsMain button:hover:not(.active), #tabsSecondary button:hover:not(.active) {
+    background: rgba(6,182,212,0.2);
+  }
   .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    justify-content: center;
+    display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
   }
   .control-group {
-    background: rgba(255 255 255 / 0.07);
-    padding: 12px 16px;
-    border-radius: 12px;
-    flex: 1 1 280px;
-    min-width: 280px;
+    background: rgba(255 255 255 / 0.07); padding: 12px 16px; border-radius: 12px;
+    flex: 1 1 280px; min-width: 280px;
   }
   .control-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: #9fb0bd;
+    display: block; margin-bottom: 6px; font-weight: 600; color: #9fb0bd;
   }
   input[type="range"] {
     width: 100%;
   }
-
-  /* Transform buttons */
-  #transformButtons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
+  #transformButtons, #downloadButtons {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
   }
-  #transformButtons button {
-    flex: 1 1 120px;
-    background: #0ba5c0;
-    border: none;
-    color: #041627;
-    font-weight: 700;
-    padding: 10px 14px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background 0.3s;
-    user-select: none;
+  #transformButtons button, #downloadButtons button {
+    flex: 1 1 120px; background: #0ba5c0; border: none; color: #041627;
+    font-weight: 700; padding: 10px 14px; border-radius: 12px; cursor: pointer;
+    transition: background 0.3s; user-select: none;
   }
-  #transformButtons button:hover {
+  #transformButtons button:hover, #downloadButtons button:hover {
     background: #0891b2;
   }
-
-  /* Download buttons */
-  #downloadButtons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
   #downloadButtons button {
-    flex: 1 1 140px;
     background: #06b6d4;
-    border: none;
-    color: #041627;
-    font-weight: 700;
-    padding: 10px 14px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background 0.3s;
-    user-select: none;
   }
   #downloadButtons button:hover {
     background: #04a4bb;
   }
-
-  /* Responsive */
   @media (max-width: 600px) {
-    .control-group {
-      min-width: 100%;
-    }
-    #transformButtons button,
-    #downloadButtons button {
-      flex: 1 1 45%;
-    }
+    .control-group { min-width: 100%; }
+    #transformButtons button, #downloadButtons button { flex: 1 1 45%; }
   }
 </style>
 </head>
 <body>
 
-  <h1>DSRT — Digital Smart Revise Technology</h1>
-  <div id="container">
+<h1>DSRT — Digital Smart Revise Technology</h1>
+<div id="container">
 
-    <label id="uploadLabel" for="fileInput">📤 Upload Gambar</label>
-    <input type="file" id="fileInput" accept="image/*" />
+  <label id="uploadLabel" for="fileInput">📤 Upload Gambar</label>
+  <input type="file" id="fileInput" accept="image/*" />
 
-    <!-- Main Tabs -->
-    <div id="tabsMain">
-      <button class="active" data-tab="capsule">Capsule (Filter Templates)</button>
-      <button data-tab="manual">Manual Tools</button>
+  <div id="tabsMain">
+    <button class="active" data-tab="capsule">Capsule (Filter Templates)</button>
+    <button data-tab="manual">Manual Tools</button>
+  </div>
+
+  <div id="tabsSecondary"></div>
+
+  <div id="canvasWrapper">
+    <canvas id="canvas"></canvas>
+    <div id="noImage">Belum ada gambar diunggah</div>
+  </div>
+
+  <div class="controls" id="filterSliders" style="display:none;">
+    <div class="control-group">
+      <label for="brightness">Brightness</label>
+      <input type="range" id="brightness" min="50" max="150" value="100" />
     </div>
-
-    <!-- Secondary Tabs (dynamic) -->
-    <div id="tabsSecondary"></div>
-
-    <!-- Canvas Preview -->
-    <div id="canvasWrapper" style="height: 450px;">
-      <canvas id="canvas"></canvas>
-      <div id="noImage">Belum ada gambar diunggah</div>
+    <div class="control-group">
+      <label for="contrast">Contrast</label>
+      <input type="range" id="contrast" min="50" max="150" value="100" />
     </div>
-
-    <!-- Filter sliders -->
-    <div class="controls" id="filterSliders" style="display:none;">
-      <div class="control-group">
-        <label for="brightness">Brightness</label>
-        <input type="range" id="brightness" min="50" max="150" value="100" />
-      </div>
-      <div class="control-group">
-        <label for="contrast">Contrast</label>
-        <input type="range" id="contrast" min="50" max="150" value="100" />
-      </div>
-      <div class="control-group">
-        <label for="saturation">Saturation</label>
-        <input type="range" id="saturation" min="0" max="200" value="100" />
-      </div>
-      <div class="control-group">
-        <label for="hue">Hue Rotate</label>
-        <input type="range" id="hue" min="0" max="360" value="0" />
-      </div>
+    <div class="control-group">
+      <label for="saturation">Saturation</label>
+      <input type="range" id="saturation" min="0" max="200" value="100" />
     </div>
-
-    <!-- Transform buttons -->
-    <div id="transformButtons" style="display:none;">
-      <button id="rotateLeft">⟲ Rotate -90°</button>
-      <button id="rotateRight">⟳ Rotate +90°</button>
-      <button id="flipH">⇋ Flip Horizontal</button>
-      <button id="flipV">⇵ Flip Vertical</button>
-      <button id="reset">Reset</button>
-    </div>
-
-    <!-- Download buttons -->
-    <div id="downloadButtons">
-      <button data-size="800">⬇ Download Kecil (800px)</button>
-      <button data-size="1600">⬇ Download Sedang (1600px)</button>
-      <button data-size="2400">⬇ Download Besar (2400px)</button>
-      <button data-size="original">⬇ Download Original</button>
+    <div class="control-group">
+      <label for="hue">Hue Rotate</label>
+      <input type="range" id="hue" min="0" max="360" value="0" />
     </div>
   </div>
 
+  <div id="transformButtons" style="display:none;">
+    <button id="rotateLeft">⟲ Rotate -90°</button>
+    <button id="rotateRight">⟳ Rotate +90°</button>
+    <button id="flipH">⇋ Flip Horizontal</button>
+    <button id="flipV">⇵ Flip Vertical</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div id="downloadButtons">
+    <button data-size="800">⬇ Download Kecil (800px)</button>
+    <button data-size="1600">⬇ Download Sedang (1600px)</button>
+    <button data-size="2400">⬇ Download Besar (2400px)</button>
+    <button data-size="original">⬇ Download Original</button>
+  </div>
+</div>
+
 <script>
-  // Elements
   const fileInput = document.getElementById('fileInput');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
@@ -277,12 +172,10 @@
   const transformButtons = document.getElementById('transformButtons');
   const downloadButtons = document.getElementById('downloadButtons');
 
-  // Image & state
   let img = null;
   let imgOriginalWidth = 0;
   let imgOriginalHeight = 0;
 
-  // Filters and transform state
   const filterState = {
     brightness: 100,
     contrast: 100,
@@ -291,14 +184,10 @@
     rotate: 0,
     flipH: false,
     flipV: false,
-    capsuleFilter: 'Normal', // selected capsule filter name
-    manualToolCategory: '', // current manual tool category
-    manualToolSelected: '', // current manual tool
+    capsuleFilter: 'Normal',
   };
 
-  // Data capsule filters & manual tools for tabsSecondary
   const capsuleFilters = {
-    name: 'Capsule',
     categories: [
       { name: 'Color', filters: ['Normal', 'Grayscale', 'Sepia', 'Warm', 'Cool', 'Vivid'] },
       { name: 'Hue', filters: ['Hue 0°', 'Hue 30°', 'Hue 60°', 'Hue 90°', 'Hue 180°'] },
@@ -311,7 +200,6 @@
   };
 
   const manualTools = {
-    name: 'Manual Tools',
     categories: [
       {
         name: 'Basic',
@@ -336,26 +224,17 @@
     ],
   };
 
-  // Current main tab: 'capsule' or 'manual'
   let currentMainTab = 'capsule';
   let currentSecondaryCategory = '';
 
-  // Initialize
   function init() {
     renderTabsSecondary();
     updateVisibility();
   }
 
-  // Render secondary tabs based on main tab
   function renderTabsSecondary() {
     tabsSecondary.innerHTML = '';
-    let categories = [];
-    if (currentMainTab === 'capsule') {
-      categories = capsuleFilters.categories;
-    } else {
-      categories = manualTools.categories;
-    }
-
+    let categories = currentMainTab === 'capsule' ? capsuleFilters.categories : manualTools.categories;
     categories.forEach((cat, i) => {
       const btn = document.createElement('button');
       btn.textContent = cat.name;
@@ -372,17 +251,12 @@
       });
       tabsSecondary.appendChild(btn);
     });
-
-    // Render first category items by default
     renderSubItems(categories[0]);
   }
 
-  // Render subfilters or subtools below secondary tabs
   function renderSubItems(category) {
-    // Remove previous subitems container if any
     const old = document.getElementById('subItemsContainer');
     if (old) old.remove();
-
     const container = document.createElement('div');
     container.id = 'subItemsContainer';
     container.style.margin = '10px 0';
@@ -390,13 +264,7 @@
     container.style.flexWrap = 'wrap';
     container.style.gap = '8px';
 
-    let items = [];
-    if (currentMainTab === 'capsule') {
-      items = category.filters;
-    } else {
-      items = category.tools;
-    }
-
+    let items = currentMainTab === 'capsule' ? category.filters : category.tools;
     items.forEach(item => {
       const btn = document.createElement('button');
       btn.textContent = item;
@@ -409,53 +277,43 @@
       btn.style.fontWeight = '600';
       btn.style.userSelect = 'none';
       btn.addEventListener('click', () => {
-        // Handle filter or manual tool selection
         if (currentMainTab === 'capsule') {
           filterState.capsuleFilter = item;
           applyFilters();
         } else {
-          filterState.manualToolSelected = item;
-          alert(`Manual Tool dipilih: ${item} (UI kontrolnya perlu dikembangkan)`);
-          // TODO: implement manual tool UI control switching
+          alert(`Manual Tool dipilih: ${item} (Kontrol UI belum dibuat)`);
         }
-        // Highlight selected button
         Array.from(container.children).forEach(c => c.style.background = '#0ba5c0');
         btn.style.background = '#06b6d4';
       });
       container.appendChild(btn);
     });
-
     tabsSecondary.parentNode.insertBefore(container, tabsSecondary.nextSibling);
   }
 
-  // Update UI visibility based on main tab
   function updateVisibility() {
     if (currentMainTab === 'capsule') {
       filterSliders.style.display = 'flex';
       transformButtons.style.display = 'flex';
     } else {
       filterSliders.style.display = 'none';
-      transformButtons.style.display = 'flex'; // manual tools may also have transforms
+      transformButtons.style.display = 'flex';
     }
   }
 
-  // Apply filters to canvas
   function applyFilters() {
     if (!img) return;
-    // Set canvas size same as image natural size
     canvas.width = imgOriginalWidth;
     canvas.height = imgOriginalHeight;
 
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Translate, rotate, flip
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(filterState.rotate * Math.PI / 180);
     ctx.scale(filterState.flipH ? -1 : 1, filterState.flipV ? -1 : 1);
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-    // Compose filters (for capsule filters, simulate a few presets)
     let filterCSS = `
       brightness(${filterState.brightness}%)
       contrast(${filterState.contrast}%)
@@ -463,7 +321,6 @@
       hue-rotate(${filterState.hue}deg)
     `;
 
-    // Example simple capsule filter presets
     switch (filterState.capsuleFilter) {
       case 'Grayscale':
         filterCSS += ' grayscale(100%)';
@@ -526,8 +383,96 @@
     ctx.restore();
   }
 
-  // File upload handler
+  // Upload image
   fileInput.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      img = new Image();
+      img.onload = function() {
+        imgOriginalWidth = img.naturalWidth;
+        imgOriginalHeight = img.naturalHeight;
+        noImage.style.display = 'none';
+        applyFilters();
+        filterSliders.style.display = 'flex';
+        transformButtons.style.display = 'flex';
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Slider events
+  ['brightness','contrast','saturation','hue'].forEach(id => {
+    const slider = document.getElementById(id);
+    slider.addEventListener('input', e => {
+      filterState[id] = e.target.value;
+      applyFilters();
+    });
+  });
+
+  // Transform buttons
+  document.getElementById('rotateLeft').addEventListener('click', () => {
+    filterState.rotate = (filterState.rotate - 90) % 360;
+    applyFilters();
+  });
+  document.getElementById('rotateRight').addEventListener('click', () => {
+    filterState.rotate = (filterState.rotate + 90) % 360;
+    applyFilters();
+  });
+  document.getElementById('flipH').addEventListener('click', () => {
+    filterState.flipH = !filterState.flipH;
+    applyFilters();
+  });
+  document.getElementById('flipV').addEventListener('click', () => {
+    filterState.flipV = !filterState.flipV;
+    applyFilters();
+  });
+  document.getElementById('reset').addEventListener('click', () => {
+    filterState.brightness = 100;
+    filterState.contrast = 100;
+    filterState.saturation = 100;
+    filterState.hue = 0;
+    filterState.rotate = 0;
+    filterState.flipH = false;
+    filterState.flipV = false;
+    filterState.capsuleFilter = 'Normal';
+
+    document.getElementById('brightness').value = 100;
+    document.getElementById('contrast').value = 100;
+    document.getElementById('saturation').value = 100;
+    document.getElementById('hue').value = 0;
+
+    applyFilters();
+  });
+
+  // Download buttons
+  downloadButtons.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!img) return alert('Upload gambar dulu');
+      let size = btn.dataset.size;
+      let w = imgOriginalWidth;
+      let h = imgOriginalHeight;
+      if (size !== 'original') {
+        w = parseInt(size);
+        h = Math.round(imgOriginalHeight * (w / imgOriginalWidth));
+      }
+      // buat canvas baru untuk download sesuai ukuran
+      const dlCanvas = document.createElement('canvas');
+      dlCanvas.width = w;
+      dlCanvas.height = h;
+      const dlCtx = dlCanvas.getContext('2d');
+
+      // Terapkan filter css sama seperti preview
+      let filterCSS = `
+        brightness(${filterState.brightness}%)
+        contrast(${filterState.contrast}%)
+        saturate(${filterState.saturation}%)
+        hue-rotate(${filterState.hue}deg)
+      `;
+
+      switch (filterState.capsuleFilter) {
+        case 'Grayscale': filterCSS += ' grayscale(100%)'; break;
+        case
