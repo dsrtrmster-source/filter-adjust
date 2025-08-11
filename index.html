@@ -1,849 +1,533 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>DSRT — Digital Smart Revise Technology</title>
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DSRT — Digital Smart Revise Technology Editor</title>
 <style>
-  :root{
-    --bg:#0b1220;
-    --card:#0f1724;
-    --muted:#9fb0bd;
-    --accent:#06b6d4;
-    --accent-2:#ff8a3d;
-    --glass: rgba(255,255,255,0.03);
-    --radius:12px;
+  /* Reset & Base */
+  * {
+    box-sizing: border-box;
   }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family:Inter,system-ui,Arial;
-    background:linear-gradient(180deg,var(--bg), #060812);
-    color:#e7f3f8;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    padding:14px;
-    display:flex;
-    justify-content:center;
+  body {
+    margin: 0; padding: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #071021, #0b2230);
+    color: #eaf2f8;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh;
   }
-
-  .app {
-    width:100%;
-    max-width:1180px;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
+  h1 {
+    margin-bottom: 12px;
+  }
+  #container {
+    max-width: 960px;
+    width: 100%;
+    background: rgba(255 255 255 / 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
-  /* Header */
-  header.app-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
+  /* Upload */
+  #uploadLabel {
+    background: #06b6d4;
+    color: #041627;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    width: max-content;
+    transition: background 0.3s;
   }
-  .brand {
-    display:flex;
-    gap:12px;
-    align-items:center;
+  #uploadLabel:hover {
+    background: #04a4bb;
   }
-  .logo {
-    width:44px; height:44px; border-radius:10px;
-    background:linear-gradient(135deg,var(--accent), #8b5cf6);
-    display:flex; align-items:center; justify-content:center;
-    font-weight:700; font-size:16px; color:#021;
-    box-shadow:0 6px 18px rgba(6,182,212,0.08);
-  }
-  .brand h1{ margin:0; font-size:16px; letter-spacing:0.2px; }
-  .brand p{ margin:0; font-size:12px; color:var(--muted) }
-
-  .header-actions { display:flex; gap:8px; align-items:center; }
-  .btn {
-    background:var(--glass);
-    border:1px solid rgba(255,255,255,0.03);
-    padding:8px 12px; border-radius:10px; color:var(--muted);
-    cursor:pointer; font-weight:600; font-size:13px;
-  }
-  .btn.primary {
-    background:linear-gradient(90deg,var(--accent), var(--accent-2));
-    color:#071018; border:none;
-  }
-  .file-input { display:none }
-
-  /* Main area */
-  .stage {
-    display:flex; gap:18px; align-items:flex-start;
+  #fileInput {
+    display: none;
   }
 
-  /* Canvas / preview */
-  .preview-wrap {
-    flex:1 1 680px;
-    display:flex; flex-direction:column; gap:12px;
+  /* Tabs main */
+  #tabsMain {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
   }
-  .canvas-card {
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:var(--radius);
-    padding:10px;
-    position:relative;
-    overflow:hidden;
-    min-height:420px;
+  #tabsMain button {
+    background: transparent;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    color: #9fb0bd;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.3s, color 0.3s;
   }
-  .viewport {
-    width:100%; height:100%;
-    display:flex; align-items:center; justify-content:center;
-    position:relative;
+  #tabsMain button.active {
+    background: #06b6d4;
+    color: #041627;
   }
-  .viewport img {
-    max-width:100%; max-height:72vh; object-fit:contain;
-    transition:filter .18s ease, transform .18s ease;
-    user-select:none;
-    -webkit-user-drag:none;
-  }
-
-  /* before/after overlay */
-  .ba-toggle {
-    position:absolute; top:12px; left:12px; z-index:12;
-    background:rgba(0,0,0,0.35); color:#e6eef6; border-radius:10px; padding:6px 10px; font-size:13px;
+  #tabsMain button:hover:not(.active) {
+    background: rgba(6,182,212,0.2);
   }
 
-  /* Tools + sidebar */
-  .sidebar {
-    width:360px; min-width:240px; display:flex; flex-direction:column; gap:12px;
+  /* Tabs secondary */
+  #tabsSecondary {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    margin-top: 10px;
   }
-  .card {
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:12px; padding:12px;
-    box-shadow:0 8px 26px rgba(2,6,23,0.6);
+  #tabsSecondary button {
+    background: transparent;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #9fb0bd;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.3s, color 0.3s;
   }
-
-  /* category tabs */
-  .tabs {
-    display:flex; gap:8px; flex-wrap:wrap;
+  #tabsSecondary button.active {
+    background: #0ba5c0;
+    color: #041627;
   }
-  .tab {
-    display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:10px;
-    background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03);
-    cursor:pointer; font-weight:600; font-size:13px;
-  }
-  .tab.active { background: rgba(6,182,212,0.12); color:var(--accent); border-color:rgba(6,182,212,0.18); }
-
-  /* filter strip */
-  .filters-track {
-    display:flex; gap:10px; overflow-x:auto; padding:10px 4px;
-    -webkit-overflow-scrolling:touch;
-  }
-  .filter-chip {
-    flex:0 0 auto; width:88px; text-align:center; cursor:pointer; color:var(--muted); font-size:12px;
-  }
-  .thumb {
-    width:88px; height:66px; border-radius:8px; overflow:hidden; background:#071018; display:flex;
-    align-items:center; justify-content:center; border:2px solid transparent;
-  }
-  .filter-chip.active .thumb { border-color: rgba(6,182,212,0.12); box-shadow:0 8px 18px rgba(6,182,212,0.04); }
-
-  /* slider */
-  .control-row { display:flex; flex-direction:column; gap:8px; }
-  .control-label { display:flex; justify-content:space-between; color:var(--muted); font-size:13px; }
-  input[type="range"] { -webkit-appearance:none; height:8px; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); outline:none; }
-  input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,0.4); cursor:pointer; border:3px solid rgba(255,255,255,0.06) }
-
-  /* transform tools */
-  .transform-grid { display:flex; gap:8px; flex-wrap:wrap; }
-  .transform-grid .btn { flex:1 1 48%; }
-
-  /* crop overlay (simple) */
-  .crop-overlay {
-    position:absolute; display:none; z-index:20; border:2px dashed rgba(255,255,255,0.18);
-    background: linear-gradient(180deg, rgba(6,12,18,0.12), rgba(6,12,18,0.12));
+  #tabsSecondary button:hover:not(.active) {
+    background: rgba(11,165,192,0.3);
   }
 
-  /* footer sticky mobile */
-  .floating-footer {
-    display:none;
+  /* Canvas area */
+  #canvasWrapper {
+    background: #061728;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  canvas {
+    max-width: 100%;
+    border-radius: 16px;
+  }
+  #noImage {
+    color: #64748b;
+    font-style: italic;
+    user-select: none;
+    padding: 50px 0;
   }
 
-  @media (max-width:980px){
-    body{ padding:10px }
-    .stage { flex-direction:column; gap:10px }
-    .sidebar { width:100% }
-    .filters-track { padding:6px 0 }
-    .floating-footer {
-      display:flex; position:fixed; left:12px; right:12px; bottom:14px; gap:8px; z-index:50;
-      justify-content:space-between; padding:8px; border-radius:12px; background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));
-      box-shadow:0 12px 40px rgba(0,0,0,0.6);
+  /* Controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+  .control-group {
+    background: rgba(255 255 255 / 0.07);
+    padding: 12px 16px;
+    border-radius: 12px;
+    flex: 1 1 280px;
+    min-width: 280px;
+  }
+  .control-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #9fb0bd;
+  }
+  input[type="range"] {
+    width: 100%;
+  }
+
+  /* Transform buttons */
+  #transformButtons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #transformButtons button {
+    flex: 1 1 120px;
+    background: #0ba5c0;
+    border: none;
+    color: #041627;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+    user-select: none;
+  }
+  #transformButtons button:hover {
+    background: #0891b2;
+  }
+
+  /* Download buttons */
+  #downloadButtons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #downloadButtons button {
+    flex: 1 1 140px;
+    background: #06b6d4;
+    border: none;
+    color: #041627;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+    user-select: none;
+  }
+  #downloadButtons button:hover {
+    background: #04a4bb;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .control-group {
+      min-width: 100%;
+    }
+    #transformButtons button,
+    #downloadButtons button {
+      flex: 1 1 45%;
     }
   }
-
-  footer.app-footer {
-    display:flex; justify-content:center; color:var(--muted); font-size:13px; padding:6px 0;
-  }
-
-  /* small helpers */
-  .muted { color:var(--muted) }
-  .small { font-size:12px }
-  .icon { opacity:0.95 }
 </style>
 </head>
 <body>
-<div class="app" id="app">
-  <header class="app-header">
-    <div class="brand">
-      <div class="logo">DSRT</div>
-      <div>
-        <h1>DSRT</h1>
-        <p>Digital Smart Revise Technology</p>
+
+  <h1>DSRT — Digital Smart Revise Technology</h1>
+  <div id="container">
+
+    <label id="uploadLabel" for="fileInput">📤 Upload Gambar</label>
+    <input type="file" id="fileInput" accept="image/*" />
+
+    <!-- Main Tabs -->
+    <div id="tabsMain">
+      <button class="active" data-tab="capsule">Capsule (Filter Templates)</button>
+      <button data-tab="manual">Manual Tools</button>
+    </div>
+
+    <!-- Secondary Tabs (dynamic) -->
+    <div id="tabsSecondary"></div>
+
+    <!-- Canvas Preview -->
+    <div id="canvasWrapper" style="height: 450px;">
+      <canvas id="canvas"></canvas>
+      <div id="noImage">Belum ada gambar diunggah</div>
+    </div>
+
+    <!-- Filter sliders -->
+    <div class="controls" id="filterSliders" style="display:none;">
+      <div class="control-group">
+        <label for="brightness">Brightness</label>
+        <input type="range" id="brightness" min="50" max="150" value="100" />
+      </div>
+      <div class="control-group">
+        <label for="contrast">Contrast</label>
+        <input type="range" id="contrast" min="50" max="150" value="100" />
+      </div>
+      <div class="control-group">
+        <label for="saturation">Saturation</label>
+        <input type="range" id="saturation" min="0" max="200" value="100" />
+      </div>
+      <div class="control-group">
+        <label for="hue">Hue Rotate</label>
+        <input type="range" id="hue" min="0" max="360" value="0" />
       </div>
     </div>
 
-    <div class="header-actions">
-      <label class="btn" id="uploadBtn">
-        <input id="fileInput" class="file-input" type="file" accept="image/*">
-        ⬆ Upload
-      </label>
-      <button id="undoBtn" class="btn">↺ Undo</button>
-      <button id="redoBtn" class="btn">↻ Redo</button>
-      <button id="resetBtn" class="btn">Reset</button>
-      <select id="formatSelect" class="btn small" style="background:var(--glass); border-radius:8px;">
-        <option value="image/png">PNG</option>
-        <option value="image/jpeg">JPG</option>
-        <option value="image/webp">WebP</option>
-      </select>
-      <button id="downloadMain" class="btn primary">Download</button>
+    <!-- Transform buttons -->
+    <div id="transformButtons" style="display:none;">
+      <button id="rotateLeft">⟲ Rotate -90°</button>
+      <button id="rotateRight">⟳ Rotate +90°</button>
+      <button id="flipH">⇋ Flip Horizontal</button>
+      <button id="flipV">⇵ Flip Vertical</button>
+      <button id="reset">Reset</button>
     </div>
-  </header>
 
-  <main class="stage">
-    <section class="preview-wrap">
-      <div class="canvas-card">
-        <div id="beforeAfter" class="ba-toggle">Before / After</div>
-
-        <div class="viewport" id="viewport">
-          <!-- Image shown here -->
-          <img id="mainImage" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop&s=0b2e3f6d9b3f2d4cb0cd5e6a2f3d5e9f" alt="Preview">
-          <!-- crop overlay -->
-          <div id="cropOverlay" class="crop-overlay"></div>
-        </div>
-      </div>
-
-      <div class="card" style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div><strong id="currentFilterName">Normal</strong> <span class="muted small" id="currentCategoryName"></span></div>
-          <div class="muted small">Intensity <span id="intVal">100%</span></div>
-        </div>
-
-        <div class="filters-track" id="filtersTrack" aria-label="Daftar filter">
-          <!-- filter chips injected here -->
-        </div>
-
-        <div class="control-row">
-          <div class="control-label"><span class="muted">Intensity</span><span id="intensityValue" class="muted">100</span></div>
-          <input id="intensity" type="range" min="0" max="200" value="100">
-        </div>
-      </div>
-    </section>
-
-    <aside class="sidebar">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:700">Tools</div>
-          <div class="muted small">Tap kategori lalu pilih filter</div>
-        </div>
-
-        <div style="margin-top:10px" id="categoryTabs">
-          <!-- tabs inserted here -->
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="font-weight:700;margin-bottom:8px">Transform</div>
-        <div class="transform-grid">
-          <button id="rotateLeft" class="btn">⟲ Rotate -90°</button>
-          <button id="rotateRight" class="btn">⟳ Rotate +90°</button>
-          <button id="flipH" class="btn">⇋ Flip H</button>
-          <button id="flipV" class="btn">⇵ Flip V</button>
-          <button id="cropBtn" class="btn">✂ Crop</button>
-          <button id="resetTransform" class="btn">Reset Transform</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="font-weight:700;margin-bottom:8px">Download Size</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" data-w="800" onclick="downloadWithWidth(800)">Small — 800px</button>
-          <button class="btn" data-w="1600" onclick="downloadWithWidth(1600)">Medium — 1600px</button>
-          <button class="btn" data-w="2400" onclick="downloadWithWidth(2400)">Large — 2400px</button>
-          <button class="btn primary" data-w="orig" onclick="downloadWithWidth('orig')">Original</button>
-        </div>
-      </div>
-
-    </aside>
-  </main>
-
-  <div class="floating-footer" id="mobileFooter">
-    <button id="baToggleMobile" class="btn">Before/After</button>
-    <button id="resetMobile" class="btn">Reset</button>
-    <button id="downloadMobile" class="btn primary">Download</button>
+    <!-- Download buttons -->
+    <div id="downloadButtons">
+      <button data-size="800">⬇ Download Kecil (800px)</button>
+      <button data-size="1600">⬇ Download Sedang (1600px)</button>
+      <button data-size="2400">⬇ Download Besar (2400px)</button>
+      <button data-size="original">⬇ Download Original</button>
+    </div>
   </div>
 
-  <footer class="app-footer">DSRT — Digital Smart Revise Technology</footer>
-</div>
-
 <script>
-/* =========================
-   State & Presets
-   ========================= */
-
-const categories = [
-  { key:'color', label:'Color Tone', items: [
-      {name:'Normal', css:'none'},
-      {name:'Grayscale', css:'grayscale(1)'},
-      {name:'Sepia', css:'sepia(1)'},
-      {name:'Warm', css:'sepia(0.25) saturate(1.12) contrast(1.02)'},
-      {name:'Cool', css:'hue-rotate(170deg) saturate(0.95) brightness(0.98)'},
-      {name:'Vivid', css:'saturate(1.4) contrast(1.05)'},
-      {name:'Muted', css:'saturate(0.8) contrast(0.95)'},
-      {name:'Lomo', css:'contrast(1.25) saturate(1.2) hue-rotate(-8deg)'},
-    ]},
-
-  { key:'hue', label:'Hue', items: (()=>{
-      const arr=[]; for(let d=-180; d<=180; d+=30) arr.push({name:`Hue ${d}°`, css:`hue-rotate(${d}deg)`});
-      return arr;
-    })() },
-
-  { key:'bmw', label:'BMW (Presets)', items:[
-      {name:'BMW Classic', css:'contrast(1.08) saturate(1.02) brightness(1.02) hue-rotate(-6deg)'},
-      {name:'BMW Soft', css:'contrast(0.98) saturate(0.95) brightness(1.04)'},
-      {name:'BMW Deep', css:'contrast(1.18) saturate(1.25) brightness(0.96) hue-rotate(200deg)'},
-      {name:'BMW Neon', css:'saturate(1.45) contrast(1.15) hue-rotate(220deg) brightness(1.03)'},
-      {name:'BMW Vintage', css:'contrast(1.05) sepia(0.12) saturate(0.92)'}
-    ]},
-
-  { key:'blur', label:'Blur', items:[
-      {name:'None', css:'none'},
-      {name:'Soft Blur', css:'blur(2px)'},
-      {name:'Medium Blur', css:'blur(4px)'},
-      {name:'Strong Blur', css:'blur(8px)'},
-      {name:'TiltShift', css:'blur(2px) contrast(1.02)'},
-    ]},
-
-  { key:'fx', label:'FX', items:[
-      {name:'Vignette', css:'contrast(0.98) brightness(0.96)'},
-      {name:'Film Grain', css:'contrast(1.02) brightness(0.98)'},
-      {name:'Pixelate', css:'none|pixelate'}, // special flag for pixelate
-      {name:'Glitch', css:'none|glitch'},
-      {name:'Light Leak', css:'none|lightleak'},
-    ]},
-
-  { key:'adjust', label:'Adjust', items:[
-      {name:'Bright+', css:'brightness(1.12)'},
-      {name:'Bright-', css:'brightness(0.9)'},
-      {name:'Contrast+', css:'contrast(1.12)'},
-      {name:'Contrast-', css:'contrast(0.9)'},
-      {name:'Saturate+', css:'saturate(1.25)'},
-      {name:'Saturate-', css:'saturate(0.8)'},
-      {name:'Invert', css:'invert(1)'},
-    ]},
-
-  { key:'art', label:'Artistic', items:[
-      {name:'Cartoon', css:'contrast(1.2) saturate(1.2)'},
-      {name:'Watercolor', css:'saturate(0.9) blur(0.8px)'},
-      {name:'Pixel Art', css:'none|pixelate'},
-    ]},
-];
-
-/* =========================
-   DOM refs & state
-   ========================= */
-const fileInput = document.getElementById('fileInput');
-const mainImage = document.getElementById('mainImage');
-const filtersTrack = document.getElementById('filtersTrack');
-const categoryTabs = document.getElementById('categoryTabs');
-const intensity = document.getElementById('intensity');
-const intVal = document.getElementById('intVal');
-const currentFilterName = document.getElementById('currentFilterName');
-const currentCategoryName = document.getElementById('currentCategoryName');
-
-const downloadMain = document.getElementById('downloadMain');
-const formatSelect = document.getElementById('formatSelect');
-
-let activeCategoryKey = categories[0].key;
-let activeList = [];
-let activeIndex = 0;
-let activeCssRaw = 'none'; // raw css or special flag
-let intensityValue = parseInt(intensity.value,10);
-
-let transformState = { rotate:0, flipH:false, flipV:false, crop:null }; // crop: {x,y,w,h}
-
-let historyStack = [], redoStack = [];
-
-/* =========================
-   Helpers
-   ========================= */
-function uniqueByCss(arr){
-  const seen = new Set(); const out=[];
-  for(const it of arr){ const key=(it.css||'none'); if(!seen.has(key)){ seen.add(key); out.push(it);} }
-  return out;
-}
-
-/* Parse css string and scale numeric params by intensity (except deg/% preserved) */
-function scaleCssByIntensity(cssStr, intensityFraction){
-  if(!cssStr || cssStr==='none') return 'none';
-  // handle multiple functions
-  return cssStr.replace(/([a-z-]+)\(\s*([0-9.]+)(deg|%)?\s*\)/ig, (m,fn,val,suffix) => {
-    if(suffix==='deg' || suffix==='%') return `${fn}(${val}${suffix||''})`;
-    const scaled = parseFloat(val) * intensityFraction;
-    return `${fn}(${scaled})`;
-  });
-}
-
-/* Safe set active category */
-function setActiveCategory(key){
-  activeCategoryKey = key;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.key===key));
-  const cat = categories.find(c=>c.key===key);
-  currentCategoryName.textContent = cat?`— ${cat.label}`:'';
-  // generate items clone
-  const items = uniqueByCss((cat.items||[]).slice());
-  activeList = items;
-  renderFilterChips(items);
-  if(items.length) selectFilter(items,0);
-}
-
-/* Render category tabs */
-function renderTabs(){
-  categoryTabs.innerHTML = '';
-  const wrap = document.createElement('div'); wrap.className='tabs';
-  categories.forEach(c=>{
-    const b = document.createElement('button'); b.className='tab'; b.textContent=c.label; b.dataset.key=c.key;
-    b.addEventListener('click', ()=> setActiveCategory(c.key));
-    wrap.appendChild(b);
-  });
-  categoryTabs.appendChild(wrap);
-}
-
-/* Render filter chips */
-function renderFilterChips(list){
-  filtersTrack.innerHTML = '';
-  list.forEach((f,i)=>{
-    const chip = document.createElement('div'); chip.className='filter-chip'; chip.dataset.index=i;
-    const thumb = document.createElement('div'); thumb.className='thumb';
-    const timg = document.createElement('img'); timg.src = mainImage.src; timg.alt = f.name;
-    timg.style.width='100%'; timg.style.height='100%'; timg.style.objectFit='cover';
-    // if special flags exist in f.css
-    if(f.css && f.css.includes('|')){
-      const [cssPart, flag] = f.css.split('|').map(s=>s.trim());
-      // apply any previewable CSS part
-      timg.style.filter = cssPart==='none'? 'none' : cssPart;
-      // for pixelate etc we will keep preview as normal (pixelate preview could be skipped)
-    } else {
-      timg.style.filter = f.css==='none'? 'none' : f.css;
-    }
-    thumb.appendChild(timg);
-    const name = document.createElement('div'); name.className='filter-name'; name.textContent=f.name;
-    chip.appendChild(thumb); chip.appendChild(name);
-    chip.addEventListener('click', ()=> selectFilter(list, i, chip));
-    filtersTrack.appendChild(chip);
-  });
-}
-
-/* Apply chosen filter to mainImage with intensity scaling (visual only via CSS) */
-function selectFilter(list, idx, chipEl){
-  const f = list[idx]; if(!f) return;
-  activeIndex = idx; activeList = list;
-  activeCssRaw = f.css || 'none';
-  intensityValue = parseInt(intensity.value,10);
-
-  // if special flags exist e.g. 'none|pixelate'
-  if(activeCssRaw.includes('|')){
-    // store both parts
-    const parts = activeCssRaw.split('|').map(s=>s.trim());
-    const cssPart = parts[0];
-    const flag = parts[1];
-    currentFilterName.textContent = `${f.name} ${flag?`(${flag})`:''}`;
-    // apply cssPart scaled for preview
-    mainImage.style.filter = cssPart==='none'? 'none' : scaleCssByIntensity(cssPart, intensityValue/100);
-  } else {
-    currentFilterName.textContent = f.name;
-    mainImage.style.filter = (f.css==='none')? 'none' : scaleCssByIntensity(f.css, intensityValue/100);
-  }
-
-  // mark active
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  if(!chipEl) chipEl = document.querySelector(`.filter-chip[data-index="${idx}"]`);
-  if(chipEl) chipEl.classList.add('active');
-}
-
-/* Update intensity */
-intensity.addEventListener('input', ()=>{
-  intVal.textContent = intensity.value + '%';
-  intensityValue = parseInt(intensity.value,10);
-  if(activeList.length) selectFilter(activeList, activeIndex);
-});
-
-/* =========================
-   Upload, Undo/Redo, Reset
-   ========================= */
-fileInput.addEventListener('change', e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const url = URL.createObjectURL(file);
-  pushHistorySnapshot(); // store previous state
-  mainImage.src = url;
-  mainImage.onload = ()=> {
-    // re-render thumbs to use new image
-    renderFilterChips(activeList);
-  };
-});
-document.getElementById('uploadBtn').addEventListener('click', ()=> fileInput.click());
-
-function pushHistorySnapshot(){
-  try{
-    const snap = {
-      src: mainImage.src,
-      filter: mainImage.style.filter || 'none',
-      transform: JSON.parse(JSON.stringify(transformState))
-    };
-    historyStack.push(snap);
-    // limit history
-    if(historyStack.length>50) historyStack.shift();
-    // clear redo when new action
-    redoStack = [];
-  } catch(e){}
-}
-
-document.getElementById('undoBtn').addEventListener('click', ()=>{
-  if(!historyStack.length) return alert('No history');
-  const snap = historyStack.pop();
-  redoStack.push({
-    src: mainImage.src,
-    filter: mainImage.style.filter || 'none',
-    transform: JSON.parse(JSON.stringify(transformState))
-  });
-  restoreSnapshot(snap);
-});
-document.getElementById('redoBtn').addEventListener('click', ()=>{
-  if(!redoStack.length) return alert('No redo');
-  const snap = redoStack.pop();
-  historyStack.push({
-    src: mainImage.src,
-    filter: mainImage.style.filter || 'none',
-    transform: JSON.parse(JSON.stringify(transformState))
-  });
-  restoreSnapshot(snap);
-});
-
-function restoreSnapshot(snap){
-  mainImage.src = snap.src;
-  mainImage.style.filter = snap.filter || 'none';
-  transformState = snap.transform || {rotate:0,flipH:false,flipV:false,crop:null};
-  applyTransformsToElement();
-}
-
-/* Reset */
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  pushHistorySnapshot();
-  mainImage.src = mainImage.src; // keep src
-  mainImage.style.filter = 'none';
-  intensity.value = 100; intVal.textContent='100%';
-  transformState = {rotate:0, flipH:false, flipV:false, crop:null};
-  applyTransformsToElement();
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  currentFilterName.textContent = 'Normal';
-});
-
-/* =========================
-   Transform controls (rotate / flip / crop)
-   ========================= */
-function applyTransformsToElement(){
-  // build CSS transform
-  const r = transformState.rotate || 0;
-  const sx = transformState.flipH? -1:1;
-  const sy = transformState.flipV? -1:1;
-  mainImage.style.transform = `rotate(${r}deg) scale(${sx}, ${sy})`;
-}
-
-/* rotate & flip */
-document.getElementById('rotateLeft').addEventListener('click', ()=>{
-  pushHistorySnapshot();
-  transformState.rotate = (transformState.rotate - 90) % 360;
-  applyTransformsToElement();
-});
-document.getElementById('rotateRight').addEventListener('click', ()=>{
-  pushHistorySnapshot();
-  transformState.rotate = (transformState.rotate + 90) % 360;
-  applyTransformsToElement();
-});
-document.getElementById('flipH').addEventListener('click', ()=>{
-  pushHistorySnapshot();
-  transformState.flipH = !transformState.flipH;
-  applyTransformsToElement();
-});
-document.getElementById('flipV').addEventListener('click', ()=>{
-  pushHistorySnapshot();
-  transformState.flipV = !transformState.flipV;
-  applyTransformsToElement();
-});
-document.getElementById('resetTransform').addEventListener('click', ()=>{
-  pushHistorySnapshot();
-  transformState = {rotate:0, flipH:false, flipV:false, crop:null};
-  applyTransformsToElement();
-});
-
-/* Crop (simple rectangle selection) */
-const viewport = document.getElementById('viewport');
-const cropOverlay = document.getElementById('cropOverlay');
-let cropping = false;
-let cropStart = null;
-document.getElementById('cropBtn').addEventListener('click', ()=>{
-  cropping = !cropping;
-  if(cropping){
-    cropOverlay.style.display = 'none';
-    cropOverlay.style.left = '0px'; cropOverlay.style.top='0px';
-    cropOverlay.style.width='0px'; cropOverlay.style.height='0px';
-    viewport.style.cursor = 'crosshair';
-    document.getElementById('cropBtn').textContent = 'Finish Crop';
-  } else {
-    // finish crop: keep transformState.crop in image coordinates
-    viewport.style.cursor = 'default';
-    document.getElementById('cropBtn').textContent = '✂ Crop';
-  }
-});
-
-viewport.addEventListener('pointerdown', (e)=>{
-  if(!cropping) return;
-  e.preventDefault();
-  const rect = viewport.getBoundingClientRect();
-  cropStart = {x: e.clientX - rect.left, y: e.clientY - rect.top};
-  cropOverlay.style.left = `${cropStart.x}px`; cropOverlay.style.top = `${cropStart.y}px`;
-  cropOverlay.style.width = '0px'; cropOverlay.style.height = '0px';
-  cropOverlay.style.display = 'block';
-  function moveFn(ev){
-    const x = ev.clientX - rect.left; const y = ev.clientY - rect.top;
-    const left = Math.min(x, cropStart.x); const top = Math.min(y, cropStart.y);
-    const w = Math.abs(x - cropStart.x); const h = Math.abs(y - cropStart.y);
-    cropOverlay.style.left = `${left}px`; cropOverlay.style.top = `${top}px`;
-    cropOverlay.style.width = `${w}px`; cropOverlay.style.height = `${h}px`;
-  }
-  function upFn(ev){
-    document.removeEventListener('pointermove', moveFn); document.removeEventListener('pointerup', upFn);
-    // store crop rectangle relative to image displayed area
-    const rectImg = mainImage.getBoundingClientRect();
-    const overlayRect = cropOverlay.getBoundingClientRect();
-    // compute crop in image natural coordinates
-    const scaleX = (mainImage.naturalWidth)/(rectImg.width);
-    const scaleY = (mainImage.naturalHeight)/(rectImg.height);
-    const cropX = Math.max(0, Math.round((overlayRect.left - rectImg.left) * scaleX));
-    const cropY = Math.max(0, Math.round((overlayRect.top - rectImg.top) * scaleY));
-    const cropW = Math.max(1, Math.round(overlayRect.width * scaleX));
-    const cropH = Math.max(1, Math.round(overlayRect.height * scaleY));
-    transformState.crop = {x:cropX, y:cropY, w:cropW, h:cropH};
-    cropping = false;
-    document.getElementById('cropBtn').textContent = '✂ Crop';
-    viewport.style.cursor='default';
-  }
-  document.addEventListener('pointermove', moveFn);
-  document.addEventListener('pointerup', upFn);
-});
-
-/* =========================
-   Export / Download logic
-   ========================= */
-
-/* drawImageWithEffects: draws the image onto canvas with CSS filters & transforms & overlays
-   - width/height target can be specified (pixels)
-   - format: mime type (image/png, image/jpeg, image/webp)
-*/
-async function drawImageWithEffects(targetW, targetH, format='image/png'){
-  const img = mainImage;
-  // create canvas
-  const canvas = document.createElement('canvas');
-  canvas.width = targetW; canvas.height = targetH;
+  // Elements
+  const fileInput = document.getElementById('fileInput');
+  const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
+  const noImage = document.getElementById('noImage');
+  const tabsMain = document.getElementById('tabsMain');
+  const tabsSecondary = document.getElementById('tabsSecondary');
+  const filterSliders = document.getElementById('filterSliders');
+  const transformButtons = document.getElementById('transformButtons');
+  const downloadButtons = document.getElementById('downloadButtons');
 
-  // parse current applied filter (mainImage.style.filter)
-  const appliedFilter = mainImage.style.filter || 'none';
-  // ctx.filter is supported in modern browsers
-  try{
-    ctx.save();
-    ctx.filter = appliedFilter;
-  } catch(e){ /* ignore */ }
+  // Image & state
+  let img = null;
+  let imgOriginalWidth = 0;
+  let imgOriginalHeight = 0;
 
-  // apply transforms: rotation & flips
-  const rot = (transformState.rotate || 0) * Math.PI/180;
-  // we'll draw with rotation around center
-  ctx.translate(canvas.width/2, canvas.height/2);
-  ctx.rotate(rot);
-  const scaleX = transformState.flipH? -1:1;
-  const scaleY = transformState.flipV? -1:1;
-  ctx.scale(scaleX, scaleY);
+  // Filters and transform state
+  const filterState = {
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    hue: 0,
+    rotate: 0,
+    flipH: false,
+    flipV: false,
+    capsuleFilter: 'Normal', // selected capsule filter name
+    manualToolCategory: '', // current manual tool category
+    manualToolSelected: '', // current manual tool
+  };
 
-  // compute source rectangle to draw (natural coords)
-  let sx=0, sy=0, sWidth=img.naturalWidth, sHeight=img.naturalHeight;
-  if(transformState.crop){
-    sx = transformState.crop.x; sy = transformState.crop.y;
-    sWidth = transformState.crop.w; sHeight = transformState.crop.h;
+  // Data capsule filters & manual tools for tabsSecondary
+  const capsuleFilters = {
+    name: 'Capsule',
+    categories: [
+      { name: 'Color', filters: ['Normal', 'Grayscale', 'Sepia', 'Warm', 'Cool', 'Vivid'] },
+      { name: 'Hue', filters: ['Hue 0°', 'Hue 30°', 'Hue 60°', 'Hue 90°', 'Hue 180°'] },
+      { name: 'Sepia', filters: ['Light Sepia', 'Medium Sepia', 'Dark Sepia'] },
+      { name: 'BMW', filters: ['BMW Classic', 'BMW Modern', 'BMW Retro'] },
+      { name: 'Blur', filters: ['None', 'Blur Low', 'Blur Medium', 'Blur High'] },
+      { name: 'Artistic', filters: ['Sketch', 'Oil Paint', 'Watercolor'] },
+      { name: 'Transform', filters: ['None'] },
+    ],
+  };
+
+  const manualTools = {
+    name: 'Manual Tools',
+    categories: [
+      {
+        name: 'Basic',
+        tools: ['Crop', 'Resize', 'Rotate', 'Flip Horizontal', 'Flip Vertical', 'Brightness / Exposure'],
+      },
+      {
+        name: 'Intermediate',
+        tools: ['Contrast', 'Saturation', 'Hue Shift', 'White Balance', 'Color Balance', 'Highlights / Shadows', 'Vignette', 'Clarity / Structure'],
+      },
+      {
+        name: 'Detail',
+        tools: ['Sharpen', 'Noise Reduction', 'Spot Removal', 'Masking / Brush'],
+      },
+      {
+        name: 'Advanced',
+        tools: ['Curves', 'Levels', 'Lens Correction', 'Perspective Fix', 'Split Toning', 'Gradient Filter', 'Radial Filter'],
+      },
+      {
+        name: 'Batch',
+        tools: ['Batch Processing'],
+      },
+    ],
+  };
+
+  // Current main tab: 'capsule' or 'manual'
+  let currentMainTab = 'capsule';
+  let currentSecondaryCategory = '';
+
+  // Initialize
+  function init() {
+    renderTabsSecondary();
+    updateVisibility();
   }
 
-  // compute destination size while preserving aspect
-  const destW = canvas.width;
-  const destH = canvas.height;
+  // Render secondary tabs based on main tab
+  function renderTabsSecondary() {
+    tabsSecondary.innerHTML = '';
+    let categories = [];
+    if (currentMainTab === 'capsule') {
+      categories = capsuleFilters.categories;
+    } else {
+      categories = manualTools.categories;
+    }
 
-  // Draw image centered
-  try{
-    // Draw into centered box — need to compensate for rotation transform applied
-    ctx.drawImage(img, sx, sy, sWidth, sHeight, -destW/2, -destH/2, destW, destH);
-    ctx.restore();
-  } catch(e){
-    console.error('drawImage error', e);
-    ctx.restore();
-  }
-
-  // Apply overlays for special flags: pixelate, glitch, light leak, vignette, film grain
-  // We check activeCssRaw for special keywords
-  const special = activeCssRaw || '';
-  if(special.includes('|')){
-    const flag = special.split('|')[1].trim();
-    if(flag === 'pixelate'){
-      // simple pixelate: scale down and scale up
-      const temp = document.createElement('canvas');
-      const tctx = temp.getContext('2d');
-      const px = Math.max(4, Math.round(Math.min(canvas.width, canvas.height) / 60)); // pixel size based on target
-      temp.width = Math.ceil(canvas.width/px);
-      temp.height = Math.ceil(canvas.height/px);
-      tctx.drawImage(canvas, 0, 0, temp.width, temp.height);
-      ctx.imageSmoothingEnabled = false;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(temp, 0, 0, temp.width, temp.height, 0, 0, canvas.width, canvas.height);
-      ctx.imageSmoothingEnabled = true;
-    } else if(flag === 'glitch'){
-      // simple RGB split overlay
-      const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-      const temp = document.createElement('canvas'); temp.width=canvas.width; temp.height=canvas.height;
-      const tctx = temp.getContext('2d');
-      tctx.putImageData(imgData,0,0);
-      // draw shifted channels
-      for(let offset of [6, -4, 2]){
-        ctx.globalAlpha = 0.6;
-        ctx.drawImage(temp, offset, 0);
-        ctx.globalAlpha = 1;
+    categories.forEach((cat, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = cat.name;
+      btn.dataset.catIndex = i;
+      if (i === 0) {
+        btn.classList.add('active');
+        currentSecondaryCategory = cat.name;
       }
-    } else if(flag === 'lightleak'){
-      // radial gradient overlay (warm)
-      const g = ctx.createRadialGradient(canvas.width*0.2, canvas.height*0.2, 10, canvas.width*0.45, canvas.height*0.15, Math.max(canvas.width, canvas.height));
-      g.addColorStop(0, 'rgba(255,150,80,0.35)');
-      g.addColorStop(0.4, 'rgba(255,100,60,0.12)');
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.globalCompositeOperation = 'screen';
-      ctx.fillRect(-canvas.width, -canvas.height, canvas.width*3, canvas.height*3);
-      ctx.globalCompositeOperation = 'source-over';
+      btn.addEventListener('click', () => {
+        currentSecondaryCategory = cat.name;
+        Array.from(tabsSecondary.children).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderSubItems(cat);
+      });
+      tabsSecondary.appendChild(btn);
+    });
+
+    // Render first category items by default
+    renderSubItems(categories[0]);
+  }
+
+  // Render subfilters or subtools below secondary tabs
+  function renderSubItems(category) {
+    // Remove previous subitems container if any
+    const old = document.getElementById('subItemsContainer');
+    if (old) old.remove();
+
+    const container = document.createElement('div');
+    container.id = 'subItemsContainer';
+    container.style.margin = '10px 0';
+    container.style.display = 'flex';
+    container.style.flexWrap = 'wrap';
+    container.style.gap = '8px';
+
+    let items = [];
+    if (currentMainTab === 'capsule') {
+      items = category.filters;
+    } else {
+      items = category.tools;
+    }
+
+    items.forEach(item => {
+      const btn = document.createElement('button');
+      btn.textContent = item;
+      btn.style.padding = '6px 12px';
+      btn.style.borderRadius = '12px';
+      btn.style.border = 'none';
+      btn.style.cursor = 'pointer';
+      btn.style.background = '#0ba5c0';
+      btn.style.color = '#041627';
+      btn.style.fontWeight = '600';
+      btn.style.userSelect = 'none';
+      btn.addEventListener('click', () => {
+        // Handle filter or manual tool selection
+        if (currentMainTab === 'capsule') {
+          filterState.capsuleFilter = item;
+          applyFilters();
+        } else {
+          filterState.manualToolSelected = item;
+          alert(`Manual Tool dipilih: ${item} (UI kontrolnya perlu dikembangkan)`);
+          // TODO: implement manual tool UI control switching
+        }
+        // Highlight selected button
+        Array.from(container.children).forEach(c => c.style.background = '#0ba5c0');
+        btn.style.background = '#06b6d4';
+      });
+      container.appendChild(btn);
+    });
+
+    tabsSecondary.parentNode.insertBefore(container, tabsSecondary.nextSibling);
+  }
+
+  // Update UI visibility based on main tab
+  function updateVisibility() {
+    if (currentMainTab === 'capsule') {
+      filterSliders.style.display = 'flex';
+      transformButtons.style.display = 'flex';
+    } else {
+      filterSliders.style.display = 'none';
+      transformButtons.style.display = 'flex'; // manual tools may also have transforms
     }
   }
 
-  // Vignette & grain approximations for filters containing names
-  if(currentFilterName.textContent.toLowerCase().includes('vignette') || activeCssRaw.includes('vignette')){
-    // darken edges
-    const vg = ctx.createRadialGradient(canvas.width/2, canvas.height/2, Math.min(canvas.width, canvas.height)/4, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height)/1.2);
-    vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.45)');
-    ctx.fillStyle = vg;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-  }
+  // Apply filters to canvas
+  function applyFilters() {
+    if (!img) return;
+    // Set canvas size same as image natural size
+    canvas.width = imgOriginalWidth;
+    canvas.height = imgOriginalHeight;
 
-  // film grain: noise overlay subtle
-  if(currentFilterName.textContent.toLowerCase().includes('film') || currentFilterName.textContent.toLowerCase().includes('grain')){
-    const grain = ctx.createImageData(canvas.width, canvas.height);
-    for(let i=0;i<grain.data.length;i+=4){
-      const v = (Math.random()*50)|0;
-      grain.data[i]=v; grain.data[i+1]=v; grain.data[i+2]=v; grain.data[i+3]=20;
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Translate, rotate, flip
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(filterState.rotate * Math.PI / 180);
+    ctx.scale(filterState.flipH ? -1 : 1, filterState.flipV ? -1 : 1);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+    // Compose filters (for capsule filters, simulate a few presets)
+    let filterCSS = `
+      brightness(${filterState.brightness}%)
+      contrast(${filterState.contrast}%)
+      saturate(${filterState.saturation}%)
+      hue-rotate(${filterState.hue}deg)
+    `;
+
+    // Example simple capsule filter presets
+    switch (filterState.capsuleFilter) {
+      case 'Grayscale':
+        filterCSS += ' grayscale(100%)';
+        break;
+      case 'Sepia':
+      case 'Light Sepia':
+      case 'Medium Sepia':
+      case 'Dark Sepia':
+        filterCSS += ' sepia(60%)';
+        break;
+      case 'Warm':
+        filterCSS += ' sepia(20%) brightness(110%)';
+        break;
+      case 'Cool':
+        filterCSS += ' hue-rotate(180deg) saturate(110%) brightness(90%)';
+        break;
+      case 'Vivid':
+        filterCSS += ' saturate(150%) contrast(120%)';
+        break;
+      case 'Hue 30°':
+        filterCSS += ' hue-rotate(30deg)';
+        break;
+      case 'Hue 60°':
+        filterCSS += ' hue-rotate(60deg)';
+        break;
+      case 'Hue 90°':
+        filterCSS += ' hue-rotate(90deg)';
+        break;
+      case 'BMW Classic':
+        filterCSS += ' grayscale(40%) contrast(120%)';
+        break;
+      case 'BMW Modern':
+        filterCSS += ' saturate(130%) brightness(105%)';
+        break;
+      case 'Blur Low':
+        filterCSS += ' blur(2px)';
+        break;
+      case 'Blur Medium':
+        filterCSS += ' blur(4px)';
+        break;
+      case 'Blur High':
+        filterCSS += ' blur(6px)';
+        break;
+      case 'Sketch':
+        filterCSS += ' contrast(150%) grayscale(70%)';
+        break;
+      case 'Oil Paint':
+        filterCSS += ' saturate(120%) brightness(110%)';
+        break;
+      case 'Watercolor':
+        filterCSS += ' saturate(130%) brightness(115%) blur(1px)';
+        break;
+      default:
+        break;
     }
-    ctx.putImageData(grain, 0, 0);
+
+    ctx.filter = filterCSS.trim();
+
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
   }
 
-  return canvas;
-}
-
-/* download convenience */
-async function downloadWithWidth(widthTag){
-  if(!mainImage.src) return alert('Upload gambar dulu!');
-  const mime = formatSelect.value || 'image/png';
-  // determine target dims
-  let targetW, targetH;
-  const natW = mainImage.naturalWidth || mainImage.width;
-  const natH = mainImage.naturalHeight || mainImage.height;
-  if(widthTag === 'orig'){
-    targetW = natW; targetH = natH;
-  } else {
-    targetW = parseInt(widthTag,10);
-    const ratio = natW / natH;
-    targetH = Math.round(targetW / ratio);
-  }
-
-  // show loader? simple block
-  downloadMain.disabled = true; downloadMain.textContent = 'Preparing...';
-
-  // draw with effects
-  const canvas = await drawImageWithEffects(targetW, targetH, mime);
-  canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    const ext = mime==='image/png'?'png': mime==='image/jpeg'?'jpg':'webp';
-    a.download = `dsrt-revise-${Date.now()}.${ext}`;
-    a.click();
-    downloadMain.disabled = false;
-    downloadMain.textContent = 'Download';
-  }, mime, mime==='image/jpeg'?0.92:undefined);
-}
-
-/* link UI download controls */
-document.getElementById('downloadMain').addEventListener('click', ()=> downloadWithWidth(1600));
-window.downloadWithWidth = downloadWithWidth; // expose for inline buttons
-
-/* =========================
-   Before/After Toggle
-   ========================= */
-const baToggle = document.getElementById('beforeAfter');
-let baState = false;
-baToggle.addEventListener('click', ()=> {
-  baState = !baState;
-  if(baState){
-    // show original (before)
-    mainImage.style.filter = 'none';
-    baToggle.textContent = 'Showing: BEFORE (tap to revert)';
-  } else {
-    // reapply active
-    if(activeList.length) selectFilter(activeList, activeIndex);
-    baToggle.textContent = 'Before / After';
-  }
-});
-document.getElementById('baToggleMobile').addEventListener('click', ()=> baToggle.click());
-
-/* mobile footer controls */
-document.getElementById('resetMobile').addEventListener('click', ()=> document.getElementById('resetBtn').click());
-document.getElementById('downloadMobile').addEventListener('click', ()=> document.getElementById('downloadMain').click());
-
-/* =========================
-   Init render
-   ========================= */
-renderTabs();
-setActiveCategory(categories[0].key);
-
-// update thumbnails when image changes
-mainImage.addEventListener('load', ()=> {
-  // re-render current list thumbs
-  if(activeList.length) renderFilterChips(activeList);
-});
-
-/* Accessibility - keyboard small shortcuts */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'r' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); document.getElementById('rotateRight').click(); }
-  if(e.key === 'z' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); document.getElementById('undoBtn').click(); }
-});
-
-/* End of script */
-</script>
-</body>
-  </html>
+  // File upload handler
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new
