@@ -1,388 +1,849 @@
 <!doctype html>
-
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DSRT — Full Filter Template (Upload · Categories · Download)</title>
-  <style>
-    :root{ --bg:#071022; --card:#0d1620; --muted:#9fb0bd; --accent:#06b6d4; }
-    *{box-sizing:border-box}
-    body{ margin:0; font-family:Inter,system-ui,Arial; background:linear-gradient(180deg,var(--bg),#02060a); color:#eaf2f8; padding:18px; }
-    .wrap{ max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
-    header{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
-    h1{ font-size:18px; margin:0; }
-    .controls{ display:flex; gap:8px; align-items:center; }
-    .btn{ background:rgba(255,255,255,0.03); color:var(--muted); border:1px solid rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px; cursor:pointer; }
-    .btn.primary{ background:var(--accent); color:#012; border:none; font-weight:700; }
-    input[type=file]{ display:none; }.stage{ display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; }
-.preview{ flex:1 1 640px; min-width:260px; }
-.frame{ border-radius:12px; overflow:hidden; background:#061018; min-height:420px; display:flex; align-items:center; justify-content:center; position:relative; }
-.frame img{ width:100%; height:100%; object-fit:contain; transition:filter 260ms ease, transform 260ms ease; user-select:none; -webkit-user-drag:none; }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DSRT — Digital Smart Revise Technology</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;
+    --card:#0f1724;
+    --muted:#9fb0bd;
+    --accent:#06b6d4;
+    --accent-2:#ff8a3d;
+    --glass: rgba(255,255,255,0.03);
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial;
+    background:linear-gradient(180deg,var(--bg), #060812);
+    color:#e7f3f8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:14px;
+    display:flex;
+    justify-content:center;
+  }
 
-.sidebar{ width:380px; min-width:240px; display:flex; flex-direction:column; gap:12px; }
-.card{ background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.6); }
+  .app {
+    width:100%;
+    max-width:1180px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
 
-/* categories tab */
-.categories{ display:flex; gap:8px; flex-wrap:wrap; }
-.cat-btn{ padding:8px 12px; border-radius:10px; cursor:pointer; background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03); }
-.cat-btn.active{ background:rgba(6,182,212,0.12); color:var(--accent); border-color:rgba(6,182,212,0.18); font-weight:700; }
+  /* Header */
+  header.app-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+  .brand {
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .logo {
+    width:44px; height:44px; border-radius:10px;
+    background:linear-gradient(135deg,var(--accent), #8b5cf6);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:16px; color:#021;
+    box-shadow:0 6px 18px rgba(6,182,212,0.08);
+  }
+  .brand h1{ margin:0; font-size:16px; letter-spacing:0.2px; }
+  .brand p{ margin:0; font-size:12px; color:var(--muted) }
 
-/* filter strip */
-.filters-track{ display:flex; gap:12px; overflow-x:auto; padding:12px; -webkit-overflow-scrolling:touch; }
-.filter-chip{ flex:0 0 auto; width:110px; text-align:center; cursor:pointer; color:var(--muted); font-size:13px; }
-.thumb{ width:100px; height:72px; border-radius:9px; overflow:hidden; background:#061018; display:flex; align-items:center; justify-content:center; border:2px solid transparent; }
-.filter-chip.active .thumb{ border-color: rgba(6,182,212,0.18); box-shadow:0 6px 20px rgba(6,182,212,0.04); }
-.filter-name{ margin-top:6px; display:block; }
+  .header-actions { display:flex; gap:8px; align-items:center; }
+  .btn {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.03);
+    padding:8px 12px; border-radius:10px; color:var(--muted);
+    cursor:pointer; font-weight:600; font-size:13px;
+  }
+  .btn.primary {
+    background:linear-gradient(90deg,var(--accent), var(--accent-2));
+    color:#071018; border:none;
+  }
+  .file-input { display:none }
 
-.range{ width:100%; }
+  /* Main area */
+  .stage {
+    display:flex; gap:18px; align-items:flex-start;
+  }
 
-.download-grid{ display:flex; gap:8px; flex-wrap:wrap; }
-.download-grid button{ flex:1 1 120px; }
+  /* Canvas / preview */
+  .preview-wrap {
+    flex:1 1 680px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .canvas-card {
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--radius);
+    padding:10px;
+    position:relative;
+    overflow:hidden;
+    min-height:420px;
+  }
+  .viewport {
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .viewport img {
+    max-width:100%; max-height:72vh; object-fit:contain;
+    transition:filter .18s ease, transform .18s ease;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
 
-footer{ text-align:center; color:var(--muted); font-size:13px; padding:8px 0; }
+  /* before/after overlay */
+  .ba-toggle {
+    position:absolute; top:12px; left:12px; z-index:12;
+    background:rgba(0,0,0,0.35); color:#e6eef6; border-radius:10px; padding:6px 10px; font-size:13px;
+  }
 
-@media (max-width:980px){ .stage{ flex-direction:column-reverse; } .sidebar{ width:100%; } }
+  /* Tools + sidebar */
+  .sidebar {
+    width:360px; min-width:240px; display:flex; flex-direction:column; gap:12px;
+  }
+  .card {
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px; padding:12px;
+    box-shadow:0 8px 26px rgba(2,6,23,0.6);
+  }
 
-  </style>
+  /* category tabs */
+  .tabs {
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .tab {
+    display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:10px;
+    background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03);
+    cursor:pointer; font-weight:600; font-size:13px;
+  }
+  .tab.active { background: rgba(6,182,212,0.12); color:var(--accent); border-color:rgba(6,182,212,0.18); }
+
+  /* filter strip */
+  .filters-track {
+    display:flex; gap:10px; overflow-x:auto; padding:10px 4px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .filter-chip {
+    flex:0 0 auto; width:88px; text-align:center; cursor:pointer; color:var(--muted); font-size:12px;
+  }
+  .thumb {
+    width:88px; height:66px; border-radius:8px; overflow:hidden; background:#071018; display:flex;
+    align-items:center; justify-content:center; border:2px solid transparent;
+  }
+  .filter-chip.active .thumb { border-color: rgba(6,182,212,0.12); box-shadow:0 8px 18px rgba(6,182,212,0.04); }
+
+  /* slider */
+  .control-row { display:flex; flex-direction:column; gap:8px; }
+  .control-label { display:flex; justify-content:space-between; color:var(--muted); font-size:13px; }
+  input[type="range"] { -webkit-appearance:none; height:8px; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); outline:none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,0.4); cursor:pointer; border:3px solid rgba(255,255,255,0.06) }
+
+  /* transform tools */
+  .transform-grid { display:flex; gap:8px; flex-wrap:wrap; }
+  .transform-grid .btn { flex:1 1 48%; }
+
+  /* crop overlay (simple) */
+  .crop-overlay {
+    position:absolute; display:none; z-index:20; border:2px dashed rgba(255,255,255,0.18);
+    background: linear-gradient(180deg, rgba(6,12,18,0.12), rgba(6,12,18,0.12));
+  }
+
+  /* footer sticky mobile */
+  .floating-footer {
+    display:none;
+  }
+
+  @media (max-width:980px){
+    body{ padding:10px }
+    .stage { flex-direction:column; gap:10px }
+    .sidebar { width:100% }
+    .filters-track { padding:6px 0 }
+    .floating-footer {
+      display:flex; position:fixed; left:12px; right:12px; bottom:14px; gap:8px; z-index:50;
+      justify-content:space-between; padding:8px; border-radius:12px; background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));
+      box-shadow:0 12px 40px rgba(0,0,0,0.6);
+    }
+  }
+
+  footer.app-footer {
+    display:flex; justify-content:center; color:var(--muted); font-size:13px; padding:6px 0;
+  }
+
+  /* small helpers */
+  .muted { color:var(--muted) }
+  .small { font-size:12px }
+  .icon { opacity:0.95 }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>DSRT — Full Filter Template</h1>
-      <div class="controls">
-        <label class="btn card" id="uploadLabel">📤 Upload Foto
-          <input id="fileInput" type="file" accept="image/*">
-        </label>
-        <button id="resetBtn" class="btn">Reset</button>
-        <button id="downloadBtn" class="btn primary">Download</button>
-      </div>
-    </header><main class="stage">
-  <section class="preview card">
-    <div class="frame" id="frame">
-      <img id="mainImage" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop&s=0b2e3f6d9b3f2d4cb0cd5e6a2f3d5e9f" alt="preview">
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-      <div style="font-size:13px;color:var(--muted)">Filter: <strong id="currentName">Normal</strong></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <label style="font-size:13px;color:var(--muted)">Intensity</label>
-        <input id="intensity" class="range" type="range" min="0" max="200" value="100" style="width:160px">
+<div class="app" id="app">
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">DSRT</div>
+      <div>
+        <h1>DSRT</h1>
+        <p>Digital Smart Revise Technology</p>
       </div>
     </div>
 
-    <div class="card" style="margin-top:12px">
-      <div class="filters-track" id="filtersTrack" aria-label="Daftar filter">
-        <!-- chips akan di-render di sini -->
-      </div>
+    <div class="header-actions">
+      <label class="btn" id="uploadBtn">
+        <input id="fileInput" class="file-input" type="file" accept="image/*">
+        ⬆ Upload
+      </label>
+      <button id="undoBtn" class="btn">↺ Undo</button>
+      <button id="redoBtn" class="btn">↻ Redo</button>
+      <button id="resetBtn" class="btn">Reset</button>
+      <select id="formatSelect" class="btn small" style="background:var(--glass); border-radius:8px;">
+        <option value="image/png">PNG</option>
+        <option value="image/jpeg">JPG</option>
+        <option value="image/webp">WebP</option>
+      </select>
+      <button id="downloadMain" class="btn primary">Download</button>
     </div>
-  </section>
+  </header>
 
-  <aside class="sidebar">
-    <div class="card">
-      <div style="font-size:14px;color:var(--muted);margin-bottom:8px">Kategori</div>
-      <div class="categories" id="categories">
-        <!-- tombol kategori -->
+  <main class="stage">
+    <section class="preview-wrap">
+      <div class="canvas-card">
+        <div id="beforeAfter" class="ba-toggle">Before / After</div>
+
+        <div class="viewport" id="viewport">
+          <!-- Image shown here -->
+          <img id="mainImage" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop&s=0b2e3f6d9b3f2d4cb0cd5e6a2f3d5e9f" alt="Preview">
+          <!-- crop overlay -->
+          <div id="cropOverlay" class="crop-overlay"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div style="font-size:14px;color:var(--muted);margin-bottom:8px">Download</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Pilih resolusi untuk download hasil (filter diterapkan):</div>
-      <div class="download-grid">
-        <button class="btn" data-w="640">Small — 640px</button>
-        <button class="btn" data-w="1280">Medium — 1280px</button>
-        <button class="btn" data-w="1920">Large — 1920px</button>
-        <button class="btn primary" data-w="orig">Original</button>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong id="currentFilterName">Normal</strong> <span class="muted small" id="currentCategoryName"></span></div>
+          <div class="muted small">Intensity <span id="intVal">100%</span></div>
+        </div>
+
+        <div class="filters-track" id="filtersTrack" aria-label="Daftar filter">
+          <!-- filter chips injected here -->
+        </div>
+
+        <div class="control-row">
+          <div class="control-label"><span class="muted">Intensity</span><span id="intensityValue" class="muted">100</span></div>
+          <input id="intensity" type="range" min="0" max="200" value="100">
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <div style="font-size:14px;color:var(--muted);margin-bottom:8px">Aksi</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="applyBtn" class="btn">Apply & Download</button>
-        <button id="revertBtn" class="btn">Revert</button>
+    <aside class="sidebar">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Tools</div>
+          <div class="muted small">Tap kategori lalu pilih filter</div>
+        </div>
+
+        <div style="margin-top:10px" id="categoryTabs">
+          <!-- tabs inserted here -->
+        </div>
       </div>
-    </div>
 
-  </aside>
-</main>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:8px">Transform</div>
+        <div class="transform-grid">
+          <button id="rotateLeft" class="btn">⟲ Rotate -90°</button>
+          <button id="rotateRight" class="btn">⟳ Rotate +90°</button>
+          <button id="flipH" class="btn">⇋ Flip H</button>
+          <button id="flipV" class="btn">⇵ Flip V</button>
+          <button id="cropBtn" class="btn">✂ Crop</button>
+          <button id="resetTransform" class="btn">Reset Transform</button>
+        </div>
+      </div>
 
-<footer>Template lengkap — upload, kategori (tap), scroll filter, intensity, download multi-res.</footer>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:8px">Download Size</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" data-w="800" onclick="downloadWithWidth(800)">Small — 800px</button>
+          <button class="btn" data-w="1600" onclick="downloadWithWidth(1600)">Medium — 1600px</button>
+          <button class="btn" data-w="2400" onclick="downloadWithWidth(2400)">Large — 2400px</button>
+          <button class="btn primary" data-w="orig" onclick="downloadWithWidth('orig')">Original</button>
+        </div>
+      </div>
 
-  </div><script>
-// ====== DATA: kategori + filter presets (banyak, tanpa duplikat) ======
-const categoryDefs = [
-  { key:'hue', label:'Hue', items: (function(){
-      const arr=[]; for(let d=-180; d<=180; d+=30) arr.push({name:`Hue ${d}°`, css:`hue-rotate(${d}deg)`}); return arr; })() },
+    </aside>
+  </main>
 
-  { key:'sepia', label:'Sepia', items:[
-      {name:'Classic Sepia', css:'sepia(1)'}, {name:'Warm Sepia', css:'sepia(0.65) saturate(1.05) brightness(1.02)'},
-      {name:'Deep Sepia', css:'sepia(0.9) contrast(1.05)'}, {name:'Red Sepia', css:'sepia(0.6) hue-rotate(-10deg) saturate(1.1)'},
-      {name:'Brown Fade', css:'sepia(0.45) brightness(0.98) contrast(0.95)' }
-    ] },
+  <div class="floating-footer" id="mobileFooter">
+    <button id="baToggleMobile" class="btn">Before/After</button>
+    <button id="resetMobile" class="btn">Reset</button>
+    <button id="downloadMobile" class="btn primary">Download</button>
+  </div>
 
-  { key:'bmw', label:'BMW', items:[
+  <footer class="app-footer">DSRT — Digital Smart Revise Technology</footer>
+</div>
+
+<script>
+/* =========================
+   State & Presets
+   ========================= */
+
+const categories = [
+  { key:'color', label:'Color Tone', items: [
+      {name:'Normal', css:'none'},
+      {name:'Grayscale', css:'grayscale(1)'},
+      {name:'Sepia', css:'sepia(1)'},
+      {name:'Warm', css:'sepia(0.25) saturate(1.12) contrast(1.02)'},
+      {name:'Cool', css:'hue-rotate(170deg) saturate(0.95) brightness(0.98)'},
+      {name:'Vivid', css:'saturate(1.4) contrast(1.05)'},
+      {name:'Muted', css:'saturate(0.8) contrast(0.95)'},
+      {name:'Lomo', css:'contrast(1.25) saturate(1.2) hue-rotate(-8deg)'},
+    ]},
+
+  { key:'hue', label:'Hue', items: (()=>{
+      const arr=[]; for(let d=-180; d<=180; d+=30) arr.push({name:`Hue ${d}°`, css:`hue-rotate(${d}deg)`});
+      return arr;
+    })() },
+
+  { key:'bmw', label:'BMW (Presets)', items:[
       {name:'BMW Classic', css:'contrast(1.08) saturate(1.02) brightness(1.02) hue-rotate(-6deg)'},
       {name:'BMW Soft', css:'contrast(0.98) saturate(0.95) brightness(1.04)'},
       {name:'BMW Deep', css:'contrast(1.18) saturate(1.25) brightness(0.96) hue-rotate(200deg)'},
       {name:'BMW Neon', css:'saturate(1.45) contrast(1.15) hue-rotate(220deg) brightness(1.03)'},
       {name:'BMW Vintage', css:'contrast(1.05) sepia(0.12) saturate(0.92)'}
-    ] },
+    ]},
 
-  { key:'bw', label:'Black & White', items:[
-      {name:'Monochrome', css:'grayscale(1)'}, {name:'High Contrast B/W', css:'grayscale(1) contrast(1.2)'},
-      {name:'Soft B/W', css:'grayscale(1) contrast(0.95) brightness(1.03)'}, {name:'Film Noir', css:'grayscale(1) contrast(1.4) brightness(0.9)'},
-      {name:'Infrared B/W', css:'grayscale(1) contrast(1.05) hue-rotate(45deg)'}
-    ] },
+  { key:'blur', label:'Blur', items:[
+      {name:'None', css:'none'},
+      {name:'Soft Blur', css:'blur(2px)'},
+      {name:'Medium Blur', css:'blur(4px)'},
+      {name:'Strong Blur', css:'blur(8px)'},
+      {name:'TiltShift', css:'blur(2px) contrast(1.02)'},
+    ]},
 
-  { key:'vintage', label:'Vintage', items:[
-      {name:'Retro Warm', css:'sepia(0.28) saturate(0.9) contrast(0.98)'},
-      {name:'70s Film', css:'contrast(0.98) saturate(0.9) hue-rotate(-10deg)'},
-      {name:'80s Cool', css:'saturate(0.95) hue-rotate(10deg) contrast(0.96)'},
-      {name:'Faded Print', css:'brightness(0.98) contrast(0.92) saturate(0.85)'},
-      {name:'Polaroid', css:'brightness(1.02) contrast(0.98) sepia(0.08)'}
-    ] },
+  { key:'fx', label:'FX', items:[
+      {name:'Vignette', css:'contrast(0.98) brightness(0.96)'},
+      {name:'Film Grain', css:'contrast(1.02) brightness(0.98)'},
+      {name:'Pixelate', css:'none|pixelate'}, // special flag for pixelate
+      {name:'Glitch', css:'none|glitch'},
+      {name:'Light Leak', css:'none|lightleak'},
+    ]},
 
-  { key:'cinema', label:'Cinematic', items:[
-      {name:'Teal & Orange', css:'contrast(1.08) saturate(1.05) hue-rotate(-10deg)'},
-      {name:'Dark Cinema', css:'contrast(1.25) brightness(0.92) saturate(0.9)'},
-      {name:'Hollywood Warm', css:'sepia(0.12) contrast(1.05) saturate(1.06)'},
-      {name:'Cool Drama', css:'contrast(1.12) hue-rotate(170deg) saturate(0.95)'},
-      {name:'Sci-Fi Tone', css:'hue-rotate(200deg) saturate(1.12) contrast(1.06)'}
-    ] },
+  { key:'adjust', label:'Adjust', items:[
+      {name:'Bright+', css:'brightness(1.12)'},
+      {name:'Bright-', css:'brightness(0.9)'},
+      {name:'Contrast+', css:'contrast(1.12)'},
+      {name:'Contrast-', css:'contrast(0.9)'},
+      {name:'Saturate+', css:'saturate(1.25)'},
+      {name:'Saturate-', css:'saturate(0.8)'},
+      {name:'Invert', css:'invert(1)'},
+    ]},
 
-  { key:'matte', label:'Matte / Soft', items:[
-      {name:'Matte Warm', css:'brightness(1.02) contrast(0.92) saturate(0.95)'},
-      {name:'Matte Cool', css:'brightness(1.01) contrast(0.92) hue-rotate(180deg) saturate(0.9)'},
-      {name:'Matte Pastel', css:'saturate(0.8) brightness(1.03) contrast(0.9)'},
-      {name:'Soft Glow', css:'brightness(1.06) blur(1px) saturate(1.02)'},
-      {name:'Soft Mist', css:'brightness(1.02) saturate(0.95) blur(0.8px)'}
-    ] },
-
-  { key:'vibrance', label:'Vibrance & Pop', items:[
-      {name:'Vivid Colors', css:'saturate(1.35) contrast(1.08)'},
-      {name:'Boosted Blues', css:'saturate(1.15) hue-rotate(200deg) contrast(1.03)'},
-      {name:'Boosted Reds', css:'saturate(1.2) hue-rotate(-10deg) contrast(1.05)'},
-      {name:'Tropical Pop', css:'saturate(1.4) brightness(1.03)'},
-      {name:'Festival Glow', css:'saturate(1.3) brightness(1.06) contrast(1.04)'}
-    ] },
-
-  { key:'portrait', label:'Portrait / Skin', items:[
-      {name:'Smooth Warm', css:'brightness(1.03) saturate(1.05) contrast(0.98)'},
-      {name:'Smooth Cool', css:'brightness(1.02) saturate(0.95) hue-rotate(180deg)'},
-      {name:'Rosy Skin', css:'saturate(1.06) contrast(0.98) hue-rotate(-6deg)'},
-      {name:'Golden Skin', css:'brightness(1.04) sepia(0.08) saturate(1.05)'},
-      {name:'Soft Tan', css:'sepia(0.12) saturate(1.02) brightness(1.01)'}
-    ] },
-
-  { key:'anime', label:'Anime / Cartoon', items:[
-      {name:'Toon Smooth', css:'contrast(1.12) saturate(1.1)'}, {name:'Toon Bold', css:'contrast(1.28) saturate(1.25)'},
-      {name:'Manga Ink', css:'grayscale(1) contrast(1.5) brightness(0.98)'}, {name:'Pixar Style', css:'saturate(1.25) contrast(1.06)'}
-    ] },
-
-  { key:'hdr', label:'HDR / Detail', items:[
-      {name:'HDR Strong', css:'contrast(1.35) saturate(1.12)'}, {name:'HDR Balanced', css:'contrast(1.12) saturate(1.06)'},
-      {name:'Clarity Boost', css:'contrast(1.15) brightness(1.02)'}
-    ] },
-
-  { key:'duotone', label:'Duotone', items:[
-      {name:'Blue-Pink', css:'sepia(0.1) saturate(1.2) hue-rotate(200deg)'},
-      {name:'Purple-Gold', css:'sepia(0.08) saturate(1.15) hue-rotate(260deg)'},
-      {name:'Red-Teal', css:'saturate(1.05) hue-rotate(-10deg)'}
-    ] },
-
-  { key:'neon', label:'Neon / Glow', items:[
-      {name:'Neon Pink', css:'saturate(1.6) hue-rotate(-30deg) contrast(1.05)'},
-      {name:'Neon Blue', css:'saturate(1.6) hue-rotate(190deg) contrast(1.05)'},
-      {name:'Neon Multi', css:'saturate(1.5) contrast(1.08)'}
-    ] },
-
-  { key:'glitch', label:'Glitch / VHS', items:[
-      {name:'RGB Shift', css:'contrast(1.05) saturate(1.05)'} ,
-      {name:'Static', css:'brightness(0.98) contrast(1.02)'} ,
-      {name:'VHS Grain', css:'contrast(0.98) saturate(0.95)'}
-    ] },
-
-  { key:'sun', label:'Sunlight / Lens', items:[
-      {name:'Golden Sun', css:'brightness(1.06) saturate(1.08) hue-rotate(-6deg)'},
-      {name:'Light Leak', css:'brightness(1.08) saturate(1.1)'} ,
-      {name:'Soft Glow', css:'brightness(1.06) blur(0.8px)'}
-    ] },
-
-  { key:'night', label:'Night / Dark', items:[
-      {name:'Midnight Blue', css:'brightness(0.9) contrast(1.08) hue-rotate(200deg)'},
-      {name:'Noir Fade', css:'contrast(1.2) brightness(0.88) grayscale(0.1)'},
-      {name:'Cyber Dark', css:'saturate(1.05) contrast(1.18) hue-rotate(220deg)'}
-    ] },
-
-  { key:'overlay', label:'Overlay / Texture', items:[
-      {name:'Dust Overlay', css:'contrast(0.98) brightness(0.99)'}, {name:'Scratches', css:'contrast(0.96) brightness(0.98)'},
-      {name:'Paper Grain', css:'contrast(0.98) saturate(0.95)'}
-    ] },
-
-  { key:'season', label:'Seasonal', items:[
-      {name:'Autumn Warm', css:'saturate(1.08) hue-rotate(-6deg) brightness(1.02)'},
-      {name:'Winter Cold', css:'saturate(0.92) hue-rotate(180deg) contrast(0.98)'},
-      {name:'Spring Fresh', css:'saturate(1.12) brightness(1.03)'},
-      {name:'Summer Vivid', css:'saturate(1.2) brightness(1.04)'}
-    ] },
-
-  { key:'fantasy', label:'Fantasy', items:[
-      {name:'Galaxy', css:'saturate(1.25) hue-rotate(220deg) contrast(1.04)'},
-      {name:'Aurora', css:'saturate(1.18) hue-rotate(200deg)'} ,
-      {name:'Magic Glow', css:'brightness(1.06) saturate(1.15) blur(0.6px)'}
-    ] }
+  { key:'art', label:'Artistic', items:[
+      {name:'Cartoon', css:'contrast(1.2) saturate(1.2)'},
+      {name:'Watercolor', css:'saturate(0.9) blur(0.8px)'},
+      {name:'Pixel Art', css:'none|pixelate'},
+    ]},
 ];
 
-// ======= Utilities & state ======
+/* =========================
+   DOM refs & state
+   ========================= */
+const fileInput = document.getElementById('fileInput');
 const mainImage = document.getElementById('mainImage');
 const filtersTrack = document.getElementById('filtersTrack');
-const categoriesEl = document.getElementById('categories');
-const currentName = document.getElementById('currentName');
+const categoryTabs = document.getElementById('categoryTabs');
 const intensity = document.getElementById('intensity');
-let activeCategoryKey = null;
+const intVal = document.getElementById('intVal');
+const currentFilterName = document.getElementById('currentFilterName');
+const currentCategoryName = document.getElementById('currentCategoryName');
+
+const downloadMain = document.getElementById('downloadMain');
+const formatSelect = document.getElementById('formatSelect');
+
+let activeCategoryKey = categories[0].key;
 let activeList = [];
 let activeIndex = 0;
-let originalSrc = mainImage.src;
+let activeCssRaw = 'none'; // raw css or special flag
+let intensityValue = parseInt(intensity.value,10);
 
-function uniqueByCss(items){
-  const seen = new Set();
-  const out = [];
-  for(const it of items){
-    const key = (it.css||'none').trim();
-    if(!seen.has(key)) { seen.add(key); out.push(it); }
-  }
+let transformState = { rotate:0, flipH:false, flipV:false, crop:null }; // crop: {x,y,w,h}
+
+let historyStack = [], redoStack = [];
+
+/* =========================
+   Helpers
+   ========================= */
+function uniqueByCss(arr){
+  const seen = new Set(); const out=[];
+  for(const it of arr){ const key=(it.css||'none'); if(!seen.has(key)){ seen.add(key); out.push(it);} }
   return out;
 }
 
-// render category buttons
-function renderCategories(){
-  categoriesEl.innerHTML = '';
-  categoryDefs.forEach(cat => {
-    const b = document.createElement('button'); b.className='cat-btn'; b.textContent=cat.label; b.dataset.key=cat.key;
-    b.addEventListener('click', ()=> showCategory(cat.key));
-    categoriesEl.appendChild(b);
+/* Parse css string and scale numeric params by intensity (except deg/% preserved) */
+function scaleCssByIntensity(cssStr, intensityFraction){
+  if(!cssStr || cssStr==='none') return 'none';
+  // handle multiple functions
+  return cssStr.replace(/([a-z-]+)\(\s*([0-9.]+)(deg|%)?\s*\)/ig, (m,fn,val,suffix) => {
+    if(suffix==='deg' || suffix==='%') return `${fn}(${val}${suffix||''})`;
+    const scaled = parseFloat(val) * intensityFraction;
+    return `${fn}(${scaled})`;
   });
 }
-renderCategories();
 
-function showCategory(key){
-  const cat = categoryDefs.find(c=>c.key===key); if(!cat) return;
-  // visual
-  document.querySelectorAll('.cat-btn').forEach(b=> b.classList.toggle('active', b.dataset.key===key));
-  // compile items and dedupe
-  let items = Array.isArray(cat.items) ? cat.items.slice() : [];
-  items = uniqueByCss(items);
-  activeCategoryKey = key; activeList = items; activeIndex = 0;
+/* Safe set active category */
+function setActiveCategory(key){
+  activeCategoryKey = key;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.key===key));
+  const cat = categories.find(c=>c.key===key);
+  currentCategoryName.textContent = cat?`— ${cat.label}`:'';
+  // generate items clone
+  const items = uniqueByCss((cat.items||[]).slice());
+  activeList = items;
   renderFilterChips(items);
   if(items.length) selectFilter(items,0);
 }
 
+/* Render category tabs */
+function renderTabs(){
+  categoryTabs.innerHTML = '';
+  const wrap = document.createElement('div'); wrap.className='tabs';
+  categories.forEach(c=>{
+    const b = document.createElement('button'); b.className='tab'; b.textContent=c.label; b.dataset.key=c.key;
+    b.addEventListener('click', ()=> setActiveCategory(c.key));
+    wrap.appendChild(b);
+  });
+  categoryTabs.appendChild(wrap);
+}
+
+/* Render filter chips */
 function renderFilterChips(list){
-  filtersTrack.innerHTML='';
+  filtersTrack.innerHTML = '';
   list.forEach((f,i)=>{
     const chip = document.createElement('div'); chip.className='filter-chip'; chip.dataset.index=i;
     const thumb = document.createElement('div'); thumb.className='thumb';
-    const timg = document.createElement('img'); timg.src = mainImage.src; timg.alt = f.name; timg.style.width='100%'; timg.style.height='100%'; timg.style.objectFit='cover';
-    timg.style.filter = f.css||'none'; timg.style.pointerEvents='none';
+    const timg = document.createElement('img'); timg.src = mainImage.src; timg.alt = f.name;
+    timg.style.width='100%'; timg.style.height='100%'; timg.style.objectFit='cover';
+    // if special flags exist in f.css
+    if(f.css && f.css.includes('|')){
+      const [cssPart, flag] = f.css.split('|').map(s=>s.trim());
+      // apply any previewable CSS part
+      timg.style.filter = cssPart==='none'? 'none' : cssPart;
+      // for pixelate etc we will keep preview as normal (pixelate preview could be skipped)
+    } else {
+      timg.style.filter = f.css==='none'? 'none' : f.css;
+    }
     thumb.appendChild(timg);
     const name = document.createElement('div'); name.className='filter-name'; name.textContent=f.name;
     chip.appendChild(thumb); chip.appendChild(name);
-    chip.addEventListener('click', ()=> selectFilter(list,i,chip));
+    chip.addEventListener('click', ()=> selectFilter(list, i, chip));
     filtersTrack.appendChild(chip);
   });
 }
 
+/* Apply chosen filter to mainImage with intensity scaling (visual only via CSS) */
 function selectFilter(list, idx, chipEl){
   const f = list[idx]; if(!f) return;
   activeIndex = idx; activeList = list;
-  // scale numeric values by intensity, except deg/%
-  const scale = parseInt(intensity.value,10)/100;
-  let css = (f.css||'none');
-  if(css==='none') mainImage.style.filter='none'; else {
-    css = css.replace(/([a-z-]+)\s*([0-9.]+)(deg|%)?\s*/ig, (m,fn,val,suffix)=>{
-      if(suffix==='deg' || suffix==='%') return `${fn}(${val}${suffix||''})`;
-      const scaled = parseFloat(val)*scale; return `${fn}(${scaled})`;
-    });
-    mainImage.style.filter = css;
+  activeCssRaw = f.css || 'none';
+  intensityValue = parseInt(intensity.value,10);
+
+  // if special flags exist e.g. 'none|pixelate'
+  if(activeCssRaw.includes('|')){
+    // store both parts
+    const parts = activeCssRaw.split('|').map(s=>s.trim());
+    const cssPart = parts[0];
+    const flag = parts[1];
+    currentFilterName.textContent = `${f.name} ${flag?`(${flag})`:''}`;
+    // apply cssPart scaled for preview
+    mainImage.style.filter = cssPart==='none'? 'none' : scaleCssByIntensity(cssPart, intensityValue/100);
+  } else {
+    currentFilterName.textContent = f.name;
+    mainImage.style.filter = (f.css==='none')? 'none' : scaleCssByIntensity(f.css, intensityValue/100);
   }
-  currentName.textContent = f.name;
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+
+  // mark active
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   if(!chipEl) chipEl = document.querySelector(`.filter-chip[data-index="${idx}"]`);
   if(chipEl) chipEl.classList.add('active');
 }
 
+/* Update intensity */
 intensity.addEventListener('input', ()=>{
-  if(!activeList.length) return; selectFilter(activeList, activeIndex);
+  intVal.textContent = intensity.value + '%';
+  intensityValue = parseInt(intensity.value,10);
+  if(activeList.length) selectFilter(activeList, activeIndex);
 });
 
-// Upload handling
-const fileInput = document.getElementById('fileInput');
+/* =========================
+   Upload, Undo/Redo, Reset
+   ========================= */
 fileInput.addEventListener('change', e=>{
-  const file = e.target.files[0]; if(!file) return;
-  const url = URL.createObjectURL(file); originalSrc = url; mainImage.src = url;
-  // re-render thumbs
-  setTimeout(()=>{ if(activeCategoryKey) showCategory(activeCategoryKey); else renderDefaultThumbs(); },50);
+  const file = e.target.files[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  pushHistorySnapshot(); // store previous state
+  mainImage.src = url;
+  mainImage.onload = ()=> {
+    // re-render thumbs to use new image
+    renderFilterChips(activeList);
+  };
+});
+document.getElementById('uploadBtn').addEventListener('click', ()=> fileInput.click());
+
+function pushHistorySnapshot(){
+  try{
+    const snap = {
+      src: mainImage.src,
+      filter: mainImage.style.filter || 'none',
+      transform: JSON.parse(JSON.stringify(transformState))
+    };
+    historyStack.push(snap);
+    // limit history
+    if(historyStack.length>50) historyStack.shift();
+    // clear redo when new action
+    redoStack = [];
+  } catch(e){}
+}
+
+document.getElementById('undoBtn').addEventListener('click', ()=>{
+  if(!historyStack.length) return alert('No history');
+  const snap = historyStack.pop();
+  redoStack.push({
+    src: mainImage.src,
+    filter: mainImage.style.filter || 'none',
+    transform: JSON.parse(JSON.stringify(transformState))
+  });
+  restoreSnapshot(snap);
+});
+document.getElementById('redoBtn').addEventListener('click', ()=>{
+  if(!redoStack.length) return alert('No redo');
+  const snap = redoStack.pop();
+  historyStack.push({
+    src: mainImage.src,
+    filter: mainImage.style.filter || 'none',
+    transform: JSON.parse(JSON.stringify(transformState))
+  });
+  restoreSnapshot(snap);
 });
 
-// Reset / revert
+function restoreSnapshot(snap){
+  mainImage.src = snap.src;
+  mainImage.style.filter = snap.filter || 'none';
+  transformState = snap.transform || {rotate:0,flipH:false,flipV:false,crop:null};
+  applyTransformsToElement();
+}
+
+/* Reset */
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  mainImage.src = originalSrc; mainImage.style.filter='none'; intensity.value=100; currentName.textContent='Normal'; document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  pushHistorySnapshot();
+  mainImage.src = mainImage.src; // keep src
+  mainImage.style.filter = 'none';
+  intensity.value = 100; intVal.textContent='100%';
+  transformState = {rotate:0, flipH:false, flipV:false, crop:null};
+  applyTransformsToElement();
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  currentFilterName.textContent = 'Normal';
 });
 
-document.getElementById('revertBtn').addEventListener('click', ()=> document.getElementById('resetBtn').click());
+/* =========================
+   Transform controls (rotate / flip / crop)
+   ========================= */
+function applyTransformsToElement(){
+  // build CSS transform
+  const r = transformState.rotate || 0;
+  const sx = transformState.flipH? -1:1;
+  const sy = transformState.flipV? -1:1;
+  mainImage.style.transform = `rotate(${r}deg) scale(${sx}, ${sy})`;
+}
 
-// Download: support multi-res using canvas and ctx.filter
-function downloadWithWidth(widthTag){
-  if(!mainImage.src) return alert('Upload gambar dulu!');
-  const img = mainImage;
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  let targetW, targetH;
-  if(widthTag==='orig'){ targetW = img.naturalWidth || img.width; targetH = img.naturalHeight || img.height; }
-  else { targetW = parseInt(widthTag,10); const ratio = (img.naturalWidth||img.width) / (img.naturalHeight||img.height); targetH = Math.round(targetW / ratio); }
-  canvas.width = targetW; canvas.height = targetH;
-  // apply filter if supported
-  const applied = img.style.filter || 'none';
-  if(ctx.filter !== undefined){
-    ctx.filter = applied;
-    // draw image scaled to canvas
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(blob=>{
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `dsrt-${activeCategoryKey||'filtered'}-${targetW}x${targetH}.png`; a.click();
-    }, 'image/png');
+/* rotate & flip */
+document.getElementById('rotateLeft').addEventListener('click', ()=>{
+  pushHistorySnapshot();
+  transformState.rotate = (transformState.rotate - 90) % 360;
+  applyTransformsToElement();
+});
+document.getElementById('rotateRight').addEventListener('click', ()=>{
+  pushHistorySnapshot();
+  transformState.rotate = (transformState.rotate + 90) % 360;
+  applyTransformsToElement();
+});
+document.getElementById('flipH').addEventListener('click', ()=>{
+  pushHistorySnapshot();
+  transformState.flipH = !transformState.flipH;
+  applyTransformsToElement();
+});
+document.getElementById('flipV').addEventListener('click', ()=>{
+  pushHistorySnapshot();
+  transformState.flipV = !transformState.flipV;
+  applyTransformsToElement();
+});
+document.getElementById('resetTransform').addEventListener('click', ()=>{
+  pushHistorySnapshot();
+  transformState = {rotate:0, flipH:false, flipV:false, crop:null};
+  applyTransformsToElement();
+});
+
+/* Crop (simple rectangle selection) */
+const viewport = document.getElementById('viewport');
+const cropOverlay = document.getElementById('cropOverlay');
+let cropping = false;
+let cropStart = null;
+document.getElementById('cropBtn').addEventListener('click', ()=>{
+  cropping = !cropping;
+  if(cropping){
+    cropOverlay.style.display = 'none';
+    cropOverlay.style.left = '0px'; cropOverlay.style.top='0px';
+    cropOverlay.style.width='0px'; cropOverlay.style.height='0px';
+    viewport.style.cursor = 'crosshair';
+    document.getElementById('cropBtn').textContent = 'Finish Crop';
   } else {
-    // fallback: draw without filter and warn
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    alert('Browser tidak mendukung ctx.filter. Hasil download tidak akan memasukkan efek CSS tertentu. Gunakan Chrome/Edge terbaru untuk hasil terbaik.');
-    canvas.toBlob(blob=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`dsrt-${targetW}x${targetH}.png`; a.click(); }, 'image/png');
+    // finish crop: keep transformState.crop in image coordinates
+    viewport.style.cursor = 'default';
+    document.getElementById('cropBtn').textContent = '✂ Crop';
   }
+});
+
+viewport.addEventListener('pointerdown', (e)=>{
+  if(!cropping) return;
+  e.preventDefault();
+  const rect = viewport.getBoundingClientRect();
+  cropStart = {x: e.clientX - rect.left, y: e.clientY - rect.top};
+  cropOverlay.style.left = `${cropStart.x}px`; cropOverlay.style.top = `${cropStart.y}px`;
+  cropOverlay.style.width = '0px'; cropOverlay.style.height = '0px';
+  cropOverlay.style.display = 'block';
+  function moveFn(ev){
+    const x = ev.clientX - rect.left; const y = ev.clientY - rect.top;
+    const left = Math.min(x, cropStart.x); const top = Math.min(y, cropStart.y);
+    const w = Math.abs(x - cropStart.x); const h = Math.abs(y - cropStart.y);
+    cropOverlay.style.left = `${left}px`; cropOverlay.style.top = `${top}px`;
+    cropOverlay.style.width = `${w}px`; cropOverlay.style.height = `${h}px`;
+  }
+  function upFn(ev){
+    document.removeEventListener('pointermove', moveFn); document.removeEventListener('pointerup', upFn);
+    // store crop rectangle relative to image displayed area
+    const rectImg = mainImage.getBoundingClientRect();
+    const overlayRect = cropOverlay.getBoundingClientRect();
+    // compute crop in image natural coordinates
+    const scaleX = (mainImage.naturalWidth)/(rectImg.width);
+    const scaleY = (mainImage.naturalHeight)/(rectImg.height);
+    const cropX = Math.max(0, Math.round((overlayRect.left - rectImg.left) * scaleX));
+    const cropY = Math.max(0, Math.round((overlayRect.top - rectImg.top) * scaleY));
+    const cropW = Math.max(1, Math.round(overlayRect.width * scaleX));
+    const cropH = Math.max(1, Math.round(overlayRect.height * scaleY));
+    transformState.crop = {x:cropX, y:cropY, w:cropW, h:cropH};
+    cropping = false;
+    document.getElementById('cropBtn').textContent = '✂ Crop';
+    viewport.style.cursor='default';
+  }
+  document.addEventListener('pointermove', moveFn);
+  document.addEventListener('pointerup', upFn);
+});
+
+/* =========================
+   Export / Download logic
+   ========================= */
+
+/* drawImageWithEffects: draws the image onto canvas with CSS filters & transforms & overlays
+   - width/height target can be specified (pixels)
+   - format: mime type (image/png, image/jpeg, image/webp)
+*/
+async function drawImageWithEffects(targetW, targetH, format='image/png'){
+  const img = mainImage;
+  // create canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = targetW; canvas.height = targetH;
+  const ctx = canvas.getContext('2d');
+
+  // parse current applied filter (mainImage.style.filter)
+  const appliedFilter = mainImage.style.filter || 'none';
+  // ctx.filter is supported in modern browsers
+  try{
+    ctx.save();
+    ctx.filter = appliedFilter;
+  } catch(e){ /* ignore */ }
+
+  // apply transforms: rotation & flips
+  const rot = (transformState.rotate || 0) * Math.PI/180;
+  // we'll draw with rotation around center
+  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.rotate(rot);
+  const scaleX = transformState.flipH? -1:1;
+  const scaleY = transformState.flipV? -1:1;
+  ctx.scale(scaleX, scaleY);
+
+  // compute source rectangle to draw (natural coords)
+  let sx=0, sy=0, sWidth=img.naturalWidth, sHeight=img.naturalHeight;
+  if(transformState.crop){
+    sx = transformState.crop.x; sy = transformState.crop.y;
+    sWidth = transformState.crop.w; sHeight = transformState.crop.h;
+  }
+
+  // compute destination size while preserving aspect
+  const destW = canvas.width;
+  const destH = canvas.height;
+
+  // Draw image centered
+  try{
+    // Draw into centered box — need to compensate for rotation transform applied
+    ctx.drawImage(img, sx, sy, sWidth, sHeight, -destW/2, -destH/2, destW, destH);
+    ctx.restore();
+  } catch(e){
+    console.error('drawImage error', e);
+    ctx.restore();
+  }
+
+  // Apply overlays for special flags: pixelate, glitch, light leak, vignette, film grain
+  // We check activeCssRaw for special keywords
+  const special = activeCssRaw || '';
+  if(special.includes('|')){
+    const flag = special.split('|')[1].trim();
+    if(flag === 'pixelate'){
+      // simple pixelate: scale down and scale up
+      const temp = document.createElement('canvas');
+      const tctx = temp.getContext('2d');
+      const px = Math.max(4, Math.round(Math.min(canvas.width, canvas.height) / 60)); // pixel size based on target
+      temp.width = Math.ceil(canvas.width/px);
+      temp.height = Math.ceil(canvas.height/px);
+      tctx.drawImage(canvas, 0, 0, temp.width, temp.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(temp, 0, 0, temp.width, temp.height, 0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = true;
+    } else if(flag === 'glitch'){
+      // simple RGB split overlay
+      const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+      const temp = document.createElement('canvas'); temp.width=canvas.width; temp.height=canvas.height;
+      const tctx = temp.getContext('2d');
+      tctx.putImageData(imgData,0,0);
+      // draw shifted channels
+      for(let offset of [6, -4, 2]){
+        ctx.globalAlpha = 0.6;
+        ctx.drawImage(temp, offset, 0);
+        ctx.globalAlpha = 1;
+      }
+    } else if(flag === 'lightleak'){
+      // radial gradient overlay (warm)
+      const g = ctx.createRadialGradient(canvas.width*0.2, canvas.height*0.2, 10, canvas.width*0.45, canvas.height*0.15, Math.max(canvas.width, canvas.height));
+      g.addColorStop(0, 'rgba(255,150,80,0.35)');
+      g.addColorStop(0.4, 'rgba(255,100,60,0.12)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillRect(-canvas.width, -canvas.height, canvas.width*3, canvas.height*3);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+
+  // Vignette & grain approximations for filters containing names
+  if(currentFilterName.textContent.toLowerCase().includes('vignette') || activeCssRaw.includes('vignette')){
+    // darken edges
+    const vg = ctx.createRadialGradient(canvas.width/2, canvas.height/2, Math.min(canvas.width, canvas.height)/4, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height)/1.2);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
+
+  // film grain: noise overlay subtle
+  if(currentFilterName.textContent.toLowerCase().includes('film') || currentFilterName.textContent.toLowerCase().includes('grain')){
+    const grain = ctx.createImageData(canvas.width, canvas.height);
+    for(let i=0;i<grain.data.length;i+=4){
+      const v = (Math.random()*50)|0;
+      grain.data[i]=v; grain.data[i+1]=v; grain.data[i+2]=v; grain.data[i+3]=20;
+    }
+    ctx.putImageData(grain, 0, 0);
+  }
+
+  return canvas;
 }
 
-// wire download buttons
-document.querySelectorAll('.download-grid button').forEach(b=>{
-  b.addEventListener('click', ()=> downloadWithWidth(b.dataset.w));
-});
+/* download convenience */
+async function downloadWithWidth(widthTag){
+  if(!mainImage.src) return alert('Upload gambar dulu!');
+  const mime = formatSelect.value || 'image/png';
+  // determine target dims
+  let targetW, targetH;
+  const natW = mainImage.naturalWidth || mainImage.width;
+  const natH = mainImage.naturalHeight || mainImage.height;
+  if(widthTag === 'orig'){
+    targetW = natW; targetH = natH;
+  } else {
+    targetW = parseInt(widthTag,10);
+    const ratio = natW / natH;
+    targetH = Math.round(targetW / ratio);
+  }
 
-document.getElementById('downloadBtn').addEventListener('click', ()=>{
-  // default: download medium
-  downloadWithWidth('1280');
-});
+  // show loader? simple block
+  downloadMain.disabled = true; downloadMain.textContent = 'Preparing...';
 
-document.getElementById('applyBtn').addEventListener('click', ()=> downloadWithWidth('orig'));
-
-// initial render: show first category and thumbs
-function renderDefaultThumbs(){
-  // show first category if available
-  if(categoryDefs && categoryDefs.length) showCategory(categoryDefs[0].key);
+  // draw with effects
+  const canvas = await drawImageWithEffects(targetW, targetH, mime);
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const ext = mime==='image/png'?'png': mime==='image/jpeg'?'jpg':'webp';
+    a.download = `dsrt-revise-${Date.now()}.${ext}`;
+    a.click();
+    downloadMain.disabled = false;
+    downloadMain.textContent = 'Download';
+  }, mime, mime==='image/jpeg'?0.92:undefined);
 }
-renderDefaultThumbs();
 
-// update thumbs when main image loads (so they use uploaded image)
-mainImage.addEventListener('load', ()=>{
-  document.querySelectorAll('.filters-track img').forEach(img=> img.src = mainImage.src );
+/* link UI download controls */
+document.getElementById('downloadMain').addEventListener('click', ()=> downloadWithWidth(1600));
+window.downloadWithWidth = downloadWithWidth; // expose for inline buttons
+
+/* =========================
+   Before/After Toggle
+   ========================= */
+const baToggle = document.getElementById('beforeAfter');
+let baState = false;
+baToggle.addEventListener('click', ()=> {
+  baState = !baState;
+  if(baState){
+    // show original (before)
+    mainImage.style.filter = 'none';
+    baToggle.textContent = 'Showing: BEFORE (tap to revert)';
+  } else {
+    // reapply active
+    if(activeList.length) selectFilter(activeList, activeIndex);
+    baToggle.textContent = 'Before / After';
+  }
+});
+document.getElementById('baToggleMobile').addEventListener('click', ()=> baToggle.click());
+
+/* mobile footer controls */
+document.getElementById('resetMobile').addEventListener('click', ()=> document.getElementById('resetBtn').click());
+document.getElementById('downloadMobile').addEventListener('click', ()=> document.getElementById('downloadMain').click());
+
+/* =========================
+   Init render
+   ========================= */
+renderTabs();
+setActiveCategory(categories[0].key);
+
+// update thumbnails when image changes
+mainImage.addEventListener('load', ()=> {
+  // re-render current list thumbs
+  if(activeList.length) renderFilterChips(activeList);
 });
 
-</script></body>
-</html>
+/* Accessibility - keyboard small shortcuts */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'r' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); document.getElementById('rotateRight').click(); }
+  if(e.key === 'z' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); document.getElementById('undoBtn').click(); }
+});
+
+/* End of script */
+</script>
+</body>
+  </html>
