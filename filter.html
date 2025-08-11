@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Filter & Adjust Gambar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    img {
+      max-width: 100%;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input[type=range], select {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Filter & Adjust Gambar</h2>
+
+  <input type="file" id="upload" accept="image/*" />
+  <br /><br />
+
+  <img id="preview" src="" alt="Preview Gambar" style="display:none;" />
+
+  <label for="brightness">Brightness</label>
+  <input type="range" id="brightness" min="50" max="150" value="100" />
+
+  <label for="contrast">Contrast</label>
+  <input type="range" id="contrast" min="50" max="150" value="100" />
+
+  <label for="saturate">Saturasi</label>
+  <input type="range" id="saturate" min="0" max="200" value="100" />
+
+  <label for="filter">Filter Warna</label>
+  <select id="filter">
+    <option value="none">Normal</option>
+    <option value="grayscale(100%)">Grayscale</option>
+    <option value="sepia(100%)">Sepia</option>
+    <option value="invert(100%)">Invert</option>
+  </select>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const preview = document.getElementById('preview');
+    const brightness = document.getElementById('brightness');
+    const contrast = document.getElementById('contrast');
+    const saturate = document.getElementById('saturate');
+    const filter = document.getElementById('filter');
+
+    function updateFilter() {
+      const b = brightness.value;
+      const c = contrast.value;
+      const s = saturate.value;
+      const f = filter.value;
+
+      preview.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) ${f}`;
+    }
+
+    upload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        preview.src = event.target.result;
+        preview.style.display = 'block';
+
+        // Reset sliders
+        brightness.value = 100;
+        contrast.value = 100;
+        saturate.value = 100;
+        filter.value = 'none';
+
+        updateFilter();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    brightness.addEventListener('input', updateFilter);
+    contrast.addEventListener('input', updateFilter);
+    saturate.addEventListener('input', updateFilter);
+    filter.addEventListener('change', updateFilter);
+  </script>
+
+</body>
+</html>
